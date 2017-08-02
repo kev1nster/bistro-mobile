@@ -2,11 +2,12 @@ package thundrware.com.bistromobile.models;
 
 import io.realm.RealmObject;
 
-public class Waiter extends RealmObject {
+public class Product extends RealmObject {
 
     private Integer Id;
     private String Name;
-    private String Password;
+    private double Price;
+    private Integer GroupId;
 
     public Integer getId() {
         return Id;
@@ -24,12 +25,22 @@ public class Waiter extends RealmObject {
         Name = name;
     }
 
-    public String getPassword() {
-        return Password;
+    public double getPrice() {
+        return Price;
     }
 
-    public void setPassword(String password) {
-        Password = password;
+    public void setPrice(double price) {
+        Price = price;
     }
+
+    public Integer getGroupId() {
+        return GroupId;
+    }
+
+    public void setGroupId(Integer groupId) {
+        GroupId = groupId;
+    }
+
+
 
 }
