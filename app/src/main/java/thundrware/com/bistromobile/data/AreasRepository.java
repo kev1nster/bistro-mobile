@@ -4,17 +4,19 @@ import java.util.Collection;
 import java.util.List;
 
 import io.realm.Realm;
-import thundrware.com.bistromobile.models.Product;
-import thundrware.com.bistromobile.models.Waiter;
+import thundrware.com.bistromobile.data.RepositoryBase;
+import thundrware.com.bistromobile.data.Repository;
+import thundrware.com.bistromobile.models.Area;
 
-public class ProductRepository extends RepositoryBase implements Repository<Product> {
 
-    public ProductRepository() {
+public class AreasRepository extends RepositoryBase implements Repository<Area> {
+
+    public AreasRepository() {
         super();
     }
 
     @Override
-    public void add(final Product item) {
+    public void add(final Area item) {
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -24,7 +26,7 @@ public class ProductRepository extends RepositoryBase implements Repository<Prod
     }
 
     @Override
-    public void addRange(final Collection<Product> items) {
+    public void addRange(final Collection<Area> items) {
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -34,14 +36,13 @@ public class ProductRepository extends RepositoryBase implements Repository<Prod
     }
 
     @Override
-    public void update(final Product itemToUpdate, final int id) {
+    public void update(final Area itemToUpdate, final int id) {
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                Product product = realm.where(Product.class).equalTo("Id", id).findFirst();
-                product.setGroupId(itemToUpdate.getGroupId());
-                product.setName(itemToUpdate.getName());
-                product.setPrice(itemToUpdate.getPrice());
+                Area area = realm.where(Area.class).equalTo("Id", id).findFirst();
+                area.setName(itemToUpdate.getName());
+                area.setNumberOfTables(itemToUpdate.getNumberOfTables());
             }
         });
     }
@@ -51,18 +52,18 @@ public class ProductRepository extends RepositoryBase implements Repository<Prod
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                realm.where(Product.class).equalTo("Id", id).findFirst().deleteFromRealm();
+                realm.where(Area.class).equalTo("Id", id).findFirst().deleteFromRealm();
             }
         });
     }
 
     @Override
-    public Product get(int id) {
-        return realmInstance.where(Product.class).equalTo("Id", id).findFirst();
+    public Area get(int id) {
+        return realmInstance.where(Area.class).equalTo("Id", id).findFirst();
     }
 
     @Override
-    public List<Product> get() {
-        return realmInstance.where(Product.class).findAll();
+    public List<Area> get() {
+        return realmInstance.where(Area.class).findAll();
     }
 }

@@ -4,17 +4,16 @@ import java.util.Collection;
 import java.util.List;
 
 import io.realm.Realm;
-import thundrware.com.bistromobile.models.Product;
-import thundrware.com.bistromobile.models.Waiter;
+import thundrware.com.bistromobile.models.Group;
 
-public class ProductRepository extends RepositoryBase implements Repository<Product> {
+public class GroupRepository extends RepositoryBase implements Repository<Group> {
 
-    public ProductRepository() {
+    public GroupRepository() {
         super();
     }
 
     @Override
-    public void add(final Product item) {
+    public void add(final Group item) {
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -24,7 +23,7 @@ public class ProductRepository extends RepositoryBase implements Repository<Prod
     }
 
     @Override
-    public void addRange(final Collection<Product> items) {
+    public void addRange(final Collection<Group> items) {
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -34,14 +33,12 @@ public class ProductRepository extends RepositoryBase implements Repository<Prod
     }
 
     @Override
-    public void update(final Product itemToUpdate, final int id) {
+    public void update(final Group itemToUpdate, final int id) {
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                Product product = realm.where(Product.class).equalTo("Id", id).findFirst();
-                product.setGroupId(itemToUpdate.getGroupId());
-                product.setName(itemToUpdate.getName());
-                product.setPrice(itemToUpdate.getPrice());
+                Group group = realm.where(Group.class).equalTo("Id", id).findFirst();
+                group.setName(itemToUpdate.getName());
             }
         });
     }
@@ -51,18 +48,18 @@ public class ProductRepository extends RepositoryBase implements Repository<Prod
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                realm.where(Product.class).equalTo("Id", id).findFirst().deleteFromRealm();
+                realm.where(Group.class).equalTo("Id", id).findFirst().deleteFromRealm();
             }
         });
     }
 
     @Override
-    public Product get(int id) {
-        return realmInstance.where(Product.class).equalTo("Id", id).findFirst();
+    public Group get(int id) {
+        return realmInstance.where(Group.class).equalTo("Id", id).findFirst();
     }
 
     @Override
-    public List<Product> get() {
-        return realmInstance.where(Product.class).findAll();
+    public List<Group> get() {
+        return realmInstance.where(Group.class).findAll();
     }
 }

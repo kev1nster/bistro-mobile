@@ -33,13 +33,13 @@ public class WaitersRepository extends RepositoryBase implements Repository<Wait
     }
 
     @Override
-    public void update(final Waiter item, final int id) {
+    public void update(final Waiter itemToUpdate, final int id) {
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 Waiter waiter = realmInstance.where(Waiter.class).equalTo("Id", id).findFirst();
-                waiter.setName(item.getName());
-                waiter.setPassword(item.getPassword());
+                waiter.setName(itemToUpdate.getName());
+                waiter.setPassword(itemToUpdate.getPassword());
             }
         });
     }

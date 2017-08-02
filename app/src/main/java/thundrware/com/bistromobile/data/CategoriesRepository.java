@@ -4,17 +4,16 @@ import java.util.Collection;
 import java.util.List;
 
 import io.realm.Realm;
-import thundrware.com.bistromobile.models.Product;
-import thundrware.com.bistromobile.models.Waiter;
+import thundrware.com.bistromobile.models.Category;
 
-public class ProductRepository extends RepositoryBase implements Repository<Product> {
+public class CategoriesRepository extends RepositoryBase implements Repository<Category> {
 
-    public ProductRepository() {
+    public CategoriesRepository() {
         super();
     }
 
     @Override
-    public void add(final Product item) {
+    public void add(final Category item) {
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -24,7 +23,7 @@ public class ProductRepository extends RepositoryBase implements Repository<Prod
     }
 
     @Override
-    public void addRange(final Collection<Product> items) {
+    public void addRange(final Collection<Category> items) {
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -34,14 +33,12 @@ public class ProductRepository extends RepositoryBase implements Repository<Prod
     }
 
     @Override
-    public void update(final Product itemToUpdate, final int id) {
+    public void update(final Category itemToUpdate, final int id) {
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                Product product = realm.where(Product.class).equalTo("Id", id).findFirst();
-                product.setGroupId(itemToUpdate.getGroupId());
-                product.setName(itemToUpdate.getName());
-                product.setPrice(itemToUpdate.getPrice());
+                Category category = realm.where(Category.class).equalTo("Id", id).findFirst();
+                category.setName(itemToUpdate.getName());
             }
         });
     }
@@ -51,18 +48,18 @@ public class ProductRepository extends RepositoryBase implements Repository<Prod
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                realm.where(Product.class).equalTo("Id", id).findFirst().deleteFromRealm();
+                realm.where(Category.class).equalTo("Id", id).findFirst().deleteFromRealm();
             }
         });
     }
 
     @Override
-    public Product get(int id) {
-        return realmInstance.where(Product.class).equalTo("Id", id).findFirst();
+    public Category get(int id) {
+        return realmInstance.where(Category.class).equalTo("Id", id).findFirst();
     }
 
     @Override
-    public List<Product> get() {
-        return realmInstance.where(Product.class).findAll();
+    public List<Category> get() {
+        return realmInstance.where(Category.class).findAll();
     }
 }

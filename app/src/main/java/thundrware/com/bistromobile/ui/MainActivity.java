@@ -22,21 +22,11 @@ import thundrware.com.bistromobile.models.Waiter;
 
 public class MainActivity extends AppCompatActivity {
 
-    @BindView(R.id.jsonWaitersTextView) TextView jsonWaitersTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-    }
-
-    @OnClick(R.id.placeNewOrderButton)
-    public void loadProductsFromApi()
-    {
-       // getWaitersList();
-
-        DataManager dataManager = new DataManager();
-        dataManager.initialize();
     }
 }
