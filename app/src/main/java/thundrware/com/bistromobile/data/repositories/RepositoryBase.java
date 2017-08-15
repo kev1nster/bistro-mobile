@@ -1,12 +1,12 @@
-package thundrware.com.bistromobile.data;
+package thundrware.com.bistromobile.data.repositories;
 
 import io.realm.Realm;
 
-public class RepositoryBase {
+class RepositoryBase {
 
     protected Realm realmInstance;
 
-    public RepositoryBase() {
+    RepositoryBase() {
         realmInstance = Realm.getDefaultInstance();
     }
 }

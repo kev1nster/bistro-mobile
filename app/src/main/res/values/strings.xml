@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">BistroMobile</string>
+    <string name="server_details_state_flag">SERVER_DETAILS_STATE</string>
+    <string name="server_details_invalid">Serverul nu poate fi accesat, reintroduceți adresa</string>
+    <string name="server_details_unset">Introduceți adresa serverului pentru a vă putea conecta</string>
 </resources>

@@ -1,4 +1,4 @@
-package thundrware.com.bistromobile.data;
+package thundrware.com.bistromobile.data.repositories;
 
 import java.util.Collection;
 import java.util.List;
@@ -39,6 +39,7 @@ public class CategoriesRepository extends RepositoryBase implements Repository<C
             public void execute(Realm realm) {
                 Category category = realm.where(Category.class).equalTo("Id", id).findFirst();
                 category.setName(itemToUpdate.getName());
+                category.setGroupsList(itemToUpdate.getGroupsList());
             }
         });
     }
@@ -61,5 +62,10 @@ public class CategoriesRepository extends RepositoryBase implements Repository<C
     @Override
     public List<Category> get() {
         return realmInstance.where(Category.class).findAll();
+    }
+
+    @Override
+    public boolean contains(Category item) {
+        return false;
     }
 }

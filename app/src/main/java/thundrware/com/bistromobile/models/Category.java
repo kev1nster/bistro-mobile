@@ -1,28 +1,36 @@
 package thundrware.com.bistromobile.models;
 
-import io.realm.RealmList;
 import io.realm.RealmObject;
 
 public class Category extends RealmObject {
 
-    private Integer id;
-    private String name;
-    private RealmList<Group> Groups;
+    private Integer Id;
+    private String Name;
+    private String GroupsList;
 
     public Integer getId() {
-        return id;
+        return Id;
     }
 
     public void setId(Integer id) {
-        this.id = id;
+        this.Id = id;
     }
 
     public String getName() {
-        return name;
+        return Name;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.Name = name;
     }
+
+    public String getGroupsList() {
+        return GroupsList;
+    }
+
+    public void setGroupsList(String groupsList) {
+        this.GroupsList = groupsList;
+    }
+
 
 }

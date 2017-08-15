@@ -4,31 +4,31 @@ import io.realm.RealmObject;
 
 public class Area extends RealmObject {
 
-    private int id;
-    private String name;
-    private int numberOfTables;
+    private int Id;
+    private String Name;
+    private int NumberOfTables;
 
     public int getId() {
-        return id;
+        return Id;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.Id = id;
     }
 
     public String getName() {
-        return name;
+        return Name;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.Name = name;
     }
 
     public int getNumberOfTables() {
-        return numberOfTables;
+        return NumberOfTables;
     }
 
     public void setNumberOfTables(int numberOfTables) {
-        this.numberOfTables = numberOfTables;
+        this.NumberOfTables = numberOfTables;
     }
 }

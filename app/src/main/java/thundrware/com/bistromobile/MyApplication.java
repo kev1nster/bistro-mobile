@@ -30,4 +30,5 @@ public class MyApplication extends Application {
         }
         return isAvailable;
     }
+
 }

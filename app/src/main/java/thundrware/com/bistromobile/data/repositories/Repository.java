@@ -1,4 +1,4 @@
-package thundrware.com.bistromobile.data;
+package thundrware.com.bistromobile.data.repositories;
 
 import java.util.Collection;
 import java.util.List;
@@ -11,4 +11,5 @@ public interface Repository<T> {
     void delete(int id);
     T get(int id);
     List<T> get();
+    boolean contains(T item);
 }

@@ -1,19 +1,19 @@
-package thundrware.com.bistromobile.data;
+package thundrware.com.bistromobile.data.repositories;
 
 import java.util.Collection;
 import java.util.List;
 
 import io.realm.Realm;
-import thundrware.com.bistromobile.models.Waiter;
+import thundrware.com.bistromobile.models.Group;
 
-public class WaitersRepository extends RepositoryBase implements Repository<Waiter> {
+public class GroupRepository extends RepositoryBase implements Repository<Group> {
 
-    public WaitersRepository() {
+    public GroupRepository() {
         super();
     }
 
     @Override
-    public void add(final Waiter item) {
+    public void add(final Group item) {
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -23,7 +23,7 @@ public class WaitersRepository extends RepositoryBase implements Repository<Wait
     }
 
     @Override
-    public void addRange(final Collection<Waiter> items) {
+    public void addRange(final Collection<Group> items) {
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -33,35 +33,38 @@ public class WaitersRepository extends RepositoryBase implements Repository<Wait
     }
 
     @Override
-    public void update(final Waiter itemToUpdate, final int id) {
+    public void update(final Group itemToUpdate, final int id) {
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                Waiter waiter = realmInstance.where(Waiter.class).equalTo("Id", id).findFirst();
-                waiter.setName(itemToUpdate.getName());
-                waiter.setPassword(itemToUpdate.getPassword());
+                Group group = realm.where(Group.class).equalTo("Id", id).findFirst();
+                group.setName(itemToUpdate.getName());
             }
         });
     }
 
     @Override
     public void delete(final int id) {
-
         realmInstance.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                realm.where(Waiter.class).equalTo("Id", id).findFirst().deleteFromRealm();
+                realm.where(Group.class).equalTo("Id", id).findFirst().deleteFromRealm();
             }
         });
     }
 
     @Override
-    public Waiter get(int id) {
-        return realmInstance.where(Waiter.class).equalTo("Id", id).findFirst();
+    public Group get(int id) {
+        return realmInstance.where(Group.class).equalTo("Id", id).findFirst();
     }
 
     @Override
-    public List<Waiter> get() {
-        return realmInstance.where(Waiter.class).findAll();
+    public List<Group> get() {
+        return realmInstance.where(Group.class).findAll();
+    }
+
+    @Override
+    public boolean contains(Group item) {
+        return false;
     }
 }

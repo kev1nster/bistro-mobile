@@ -1,15 +1,14 @@
-package thundrware.com.bistromobile.data;
+package thundrware.com.bistromobile.data.repositories;
 
 import java.util.Collection;
 import java.util.List;
 
 import io.realm.Realm;
 import thundrware.com.bistromobile.models.Product;
-import thundrware.com.bistromobile.models.Waiter;
 
-public class ProductRepository extends RepositoryBase implements Repository<Product> {
+public class ProductsRepository extends RepositoryBase implements Repository<Product> {
 
-    public ProductRepository() {
+    public ProductsRepository() {
         super();
     }
 
@@ -64,5 +63,10 @@ public class ProductRepository extends RepositoryBase implements Repository<Prod
     @Override
     public List<Product> get() {
         return realmInstance.where(Product.class).findAll();
+    }
+
+    @Override
+    public boolean contains(Product item) {
+        return false;
     }
 }

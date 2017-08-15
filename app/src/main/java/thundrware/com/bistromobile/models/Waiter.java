@@ -1,35 +1,34 @@
 package thundrware.com.bistromobile.models;
 
-import io.realm.RealmObject;
+public class Waiter {
 
-public class Waiter extends RealmObject {
-
-    private Integer Id;
-    private String Name;
-    private String Password;
-
-    public Integer getId() {
-        return Id;
-    }
-
-    public void setId(Integer id) {
-        Id = id;
-    }
-
-    public String getName() {
-        return Name;
-    }
-
-    public void setName(String name) {
-        Name = name;
-    }
+    private Integer id;
+    private String name;
 
     public String getPassword() {
-        return Password;
+        return password;
     }
 
     public void setPassword(String password) {
-        Password = password;
+        this.password = password;
+    }
+
+    private String password;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
 }

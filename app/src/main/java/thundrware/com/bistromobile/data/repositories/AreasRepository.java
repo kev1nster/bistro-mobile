@@ -1,11 +1,9 @@
-package thundrware.com.bistromobile.data;
+package thundrware.com.bistromobile.data.repositories;
 
 import java.util.Collection;
 import java.util.List;
 
 import io.realm.Realm;
-import thundrware.com.bistromobile.data.RepositoryBase;
-import thundrware.com.bistromobile.data.Repository;
 import thundrware.com.bistromobile.models.Area;
 
 
@@ -65,5 +63,10 @@ public class AreasRepository extends RepositoryBase implements Repository<Area> 
     @Override
     public List<Area> get() {
         return realmInstance.where(Area.class).findAll();
+    }
+
+    @Override
+    public boolean contains(Area item) {
+        return false;
     }
 }
