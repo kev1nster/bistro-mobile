@@ -24,12 +24,7 @@ public class CategoriesRepository extends RepositoryBase implements Repository<C
 
     @Override
     public void addRange(final Collection<Category> items) {
-        realmInstance.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                realm.copyToRealm(items);
-            }
-        });
+        realmInstance.executeTransaction(realm -> realm.copyToRealm(items));
     }
 
     @Override

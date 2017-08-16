@@ -1,27 +1,46 @@
 package thundrware.com.bistromobile.ui;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.Button;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnEditorAction;
 import thundrware.com.bistromobile.AlertMessage;
-import thundrware.com.bistromobile.InvalidWaiterPasswordException;
 import thundrware.com.bistromobile.R;
 import thundrware.com.bistromobile.WaiterManager;
+import thundrware.com.bistromobile.listeners.OnLoginHandler;
 
 public class LoginActivity extends AppCompatActivity {
 
     @BindView(R.id.passwordEditText) EditText mPasswordEditText;
+
+    private Activity mActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
+
+        mActivity = this;
+    }
+
+    @OnEditorAction(R.id.passwordEditText)
+    public boolean onEditorActionHandler(TextView textView, int i, KeyEvent keyEvent) {
+        if (i == EditorInfo.IME_ACTION_DONE) {
+            onLoginButtonClickedHandler();
+        }
+        return false;
     }
 
     @OnClick(R.id.loginButton)
@@ -29,15 +48,29 @@ public class LoginActivity extends AppCompatActivity {
         WaiterManager waiterManager = new WaiterManager();
 
         String passwordEditTextInput = mPasswordEditText.getText().toString();
-        try {
-            waiterManager.logWaiterIn(passwordEditTextInput);
-        } catch (InvalidWaiterPasswordException e) {
-            AlertMessage.showInvalidWaiterPasswordMessage(this);
-        }
-    }
+        waiterManager.logWaiterIn(passwordEditTextInput, new OnLoginHandler() {
+            @Override
+            public void onError(Throwable e) {
+                runOnUiThread(() -> {
+                    AlertMessage.showInvalidWaiterPasswordMessage(mActivity);
+                });
 
+            }
+
+            @Override
+            public void onSuccess() {
+                runOnUiThread(() -> launchDataLoadingActivity());
+            }
+        });
+    }
     @Override
     public void onBackPressed() {
         return;
+    }
+
+    private void launchDataLoadingActivity() {
+        Intent intent = new Intent(this, DataLoadingActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

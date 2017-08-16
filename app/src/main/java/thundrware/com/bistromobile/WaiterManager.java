@@ -1,8 +1,17 @@
 package thundrware.com.bistromobile;
 
-import retrofit2.Response;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
+import io.reactivex.schedulers.Schedulers;
+import thundrware.com.bistromobile.listeners.OnLoginHandler;
+import thundrware.com.bistromobile.listeners.WaiterQueriedListener;
 import thundrware.com.bistromobile.models.Waiter;
 import thundrware.com.bistromobile.networking.DataService;
+import thundrware.com.bistromobile.networking.DataServiceProvider;
 
 public class WaiterManager {
 
@@ -14,15 +23,16 @@ public class WaiterManager {
         mApplicationPreferences = new ApplicationPreferences(MyApplication.getContext());
     }
 
-    public void logWaiterIn(String password) throws InvalidWaiterPasswordException {
+    public void logWaiterIn(String password, OnLoginHandler handler) {
 
-        Waiter waiter = getWaiterByPassword(password);
+        Single<Waiter> waiterObservable = getWaiterObservableByPassword(password);
+        waiterObservable.subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(waiter -> {
+                    persistWaiterData(waiter);
+                    handler.onSuccess();
+                }, e -> handler.onError(e));
 
-        if (waiter != null) {
-            persistWaiterData(waiter);
-        } else {
-            throw new InvalidWaiterPasswordException();
-        }
     }
 
     public void signWaiterOut() {
@@ -38,23 +48,18 @@ public class WaiterManager {
         return waiter;
     }
 
-    public boolean isAnyWaiterLoggedIn() {
-        return (getWaiterByPassword(getCurrentWaiter().getPassword()) != null);
+    public void startWaiterAvailabilityChecker(WaiterQueriedListener waiterListener) {
+        getWaiterObservableByPassword(getCurrentWaiter().getPassword())
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(waiter -> waiterListener.onWaiterQueried(waiter), e -> waiterListener.onError(e));
+
     }
 
-    private Waiter getWaiterByPassword(String password) {
-        DataService waiterRetrieverService = new ServerManager().getService();
-        try {
-           Response<Waiter> waiterResponse = waiterRetrieverService.getWaiter(password).execute();
-
-           if (waiterResponse.isSuccessful()) {
-               return waiterResponse.body();
-           } else {
-               return null;
-           }
-        } catch (Exception ex) {
-            return null;
-        }
+    private Single<Waiter> getWaiterObservableByPassword(String password) {
+        ServerConnectionDetailsManager serverManager = new ServerConnectionDetailsManager();
+        DataService waiterRetrieverService = DataServiceProvider.create(serverManager.getConnectionDetails().toString());
+        return waiterRetrieverService.getWaiter(password);
     }
 
     private void persistWaiterData(Waiter waiter) {

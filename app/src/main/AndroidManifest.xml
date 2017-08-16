@@ -16,21 +16,24 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".ui.MainActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
+            android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".ui.ServerDetailsActivity">
+        <activity android:name=".ui.ServerDetailsActivity"
+            android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".ui.SplashScreenActivity">
+        <activity android:name=".ui.SplashScreenActivity"
+                  android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ui.LoginActivity">
+        <activity android:name=".ui.LoginActivity"
+                  android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".ui.DataLoadingActivity">
+        <activity android:name=".ui.DataLoadingActivity"
+                  android:screenOrientation="portrait">
         </activity>
     </application>
 

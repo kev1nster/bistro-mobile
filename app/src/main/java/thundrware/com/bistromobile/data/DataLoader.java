@@ -1,9 +1,12 @@
 package thundrware.com.bistromobile.data;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observer;
+import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
@@ -48,26 +51,24 @@ public class DataLoader {
         mDataService.getCategories()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<List<Category>>() {
+                .subscribe(new SingleObserver<List<Category>>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
 
                     }
 
                     @Override
-                    public void onNext(@NonNull List<Category> categoryList) {
+                    public void onSuccess(@NonNull List<Category> categoryList) {
+                        onTaskProgressHandler("Configurare categorii...");
                         categoriesRepository.addRange(categoryList);
+                        Log.e("RXJAVA_TEST", "Categoriile au fost adăugate, mai sunt inca " + mEntitiesToLoadList.size() + " entitati de adaugat");
+                        mEntitiesToLoadList.remove(EntitiesToLoad.Categories);
+                        taskFinishChecker();
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
 
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        mEntitiesToLoadList.remove(EntitiesToLoad.Categories);
-                        onTaskFinishedHandler("Configurare categorii...");
                     }
                 });
         return this;
@@ -82,26 +83,24 @@ public class DataLoader {
         mDataService.getProducts()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<List<Product>>() {
+                .subscribe(new SingleObserver<List<Product>>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
 
                     }
 
                     @Override
-                    public void onNext(@NonNull List<Product> products) {
+                    public void onSuccess(@NonNull List<Product> products) {
+                        onTaskProgressHandler("Configurare produse...");
                         productsRepository.addRange(products);
+                        Log.e("RXJAVA_TEST", "Produsele au fost adăugate, mai sunt inca " + mEntitiesToLoadList.size() + " entitati de adaugat");
+                        mEntitiesToLoadList.remove(EntitiesToLoad.Products);
+                        taskFinishChecker();
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
 
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        mEntitiesToLoadList.remove(EntitiesToLoad.Products);
-                        onTaskFinishedHandler("Configurare produse...");
                     }
                 });
 
@@ -117,27 +116,27 @@ public class DataLoader {
         mDataService.getGroups()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<List<Group>>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-
-                    }
+                .subscribe(new SingleObserver<List<Group>>() {
 
                     @Override
-                    public void onNext(@NonNull List<Group> groups) {
-                        groupRepository.addRange(groups);
-                    }
+                   public void onSubscribe(@NonNull Disposable d) {
 
-                    @Override
-                    public void onError(@NonNull Throwable e) {
+                   }
 
-                    }
+                   @Override
+                   public void onSuccess(@NonNull List<Group> groups) {
+                       onTaskProgressHandler("Configurare grupe...");
+                       groupRepository.addRange(groups);
+                       Log.e("RXJAVA_TEST", "Grupele au fost adăugate, mai sunt inca " + mEntitiesToLoadList.size() + " entitati de adaugat");
+                       mEntitiesToLoadList.remove(EntitiesToLoad.Groups);
+                       taskFinishChecker();
+                   }
 
-                    @Override
-                    public void onComplete() {
-                        mEntitiesToLoadList.remove(EntitiesToLoad.Groups);
-                        onTaskFinishedHandler("Configurare grupe...");
-                    }
+                   @Override
+                   public void onError(@NonNull Throwable e) {
+
+                   }
+
                 });
             return this;
     }
@@ -150,26 +149,24 @@ public class DataLoader {
         mDataService.getAreas()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<List<Area>>() {
+                .subscribe(new SingleObserver<List<Area>>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
 
                     }
 
                     @Override
-                    public void onNext(@NonNull List<Area> areaList) {
+                    public void onSuccess(@NonNull List<Area> areaList) {
+                        onTaskProgressHandler("Configurare zone...");
                         areasRepository.addRange(areaList);
+                        Log.e("RXJAVA_TEST", "Zonele au fost adăugate, mai sunt inca " + mEntitiesToLoadList.size() + " entitati de adaugat");
+                        mEntitiesToLoadList.remove(EntitiesToLoad.Areas);
+                        taskFinishChecker();
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
 
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        mEntitiesToLoadList.remove(EntitiesToLoad.Areas);
-                        onTaskFinishedHandler("Configurare zone...");
                     }
                 });
         return this;
@@ -179,11 +176,14 @@ public class DataLoader {
         return (mEntitiesToLoadList.size() == 0);
     }
 
-    private void onTaskFinishedHandler(String message) {
-        if (mEntitiesToLoadList.size() == 0) {
+
+    private void onTaskProgressHandler(String message) {
+        mProcessFinishedListener.onProcessStatusUpdate(message);
+    }
+
+    private void taskFinishChecker() {
+        if (hasFinished()) {
             mProcessFinishedListener.onProcessFinished();
-        } else {
-            mProcessFinishedListener.onProcessStatusUpdate(message);
         }
     }
 

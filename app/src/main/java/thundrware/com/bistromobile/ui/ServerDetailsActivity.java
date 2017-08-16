@@ -1,20 +1,30 @@
 package thundrware.com.bistromobile.ui;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnEditorAction;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import thundrware.com.bistromobile.AlertMessage;
 import thundrware.com.bistromobile.R;
 import thundrware.com.bistromobile.ServerDetailsState;
-import thundrware.com.bistromobile.ServerManager;
+import thundrware.com.bistromobile.ServerConnectionDetailsManager;
+import thundrware.com.bistromobile.networking.DataService;
+import thundrware.com.bistromobile.networking.DataServiceProvider;
 import thundrware.com.bistromobile.networking.ServerAddress;
-import thundrware.com.bistromobile.utils.StringUtils;
 
 public class ServerDetailsActivity extends AppCompatActivity {
 
@@ -23,23 +33,16 @@ public class ServerDetailsActivity extends AppCompatActivity {
     @BindView(R.id.continueServerSettingsButton) Button mContinueButton;
     @BindView(R.id.serverDetailsHelpMessageTextView) TextView mHelpMessageTextView;
 
-    private ServerManager mServerManager;
+    private ServerConnectionDetailsManager mServerConnectionDetailsManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_server_details);
+        ButterKnife.bind(this);
 
-        mServerManager = new ServerManager();
-
-        Intent intent = getIntent();
-        ServerDetailsState state = (ServerDetailsState) intent.getSerializableExtra(getString(R.string.server_details_state_flag));
-        if (state == ServerDetailsState.Invalid) {
-            mHelpMessageTextView.setText(getString(R.string.server_details_invalid));
-        } else {
-            mHelpMessageTextView.setText(getString(R.string.server_details_unset));
-        }
-
+        mServerConnectionDetailsManager = new ServerConnectionDetailsManager();
+        fixHelpTextViewMessage();
     }
 
     @OnClick(R.id.continueServerSettingsButton)
@@ -48,18 +51,41 @@ public class ServerDetailsActivity extends AppCompatActivity {
         String address = mIpAddressEditText.getText().toString();
         String port = mPortEditText.getText().toString();
 
-        ServerAddress serverAddress = new ServerAddress();
+        final Activity activity = this;
+        final ServerAddress serverAddress = new ServerAddress();
         serverAddress.setAddress(address);
         serverAddress.setPort(port);
 
-        mServerManager.setConnectionDetails(serverAddress);
+        DataService dataService = DataServiceProvider.create(serverAddress.toString());
 
-        if (mServerManager.isAccessible()) {
-            launchLoginActivity();
-        } else {
-            AlertMessage.showInvalidServerConnectionDetailsMessage(this);
-            clearInputFields();
+        mServerConnectionDetailsManager.tryConnection(dataService, new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                // succesfully connected to the server, persist details
+                mServerConnectionDetailsManager.setConnectionDetails(serverAddress);
+
+                // open the login activity
+                runOnUiThread(() -> launchLoginActivity());
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                runOnUiThread(() -> {
+                    AlertMessage.showInvalidServerConnectionDetailsMessage(activity);
+                    clearInputFields();
+                });
+
+            }
+        });
+    }
+
+    @OnEditorAction(R.id.portEditText)
+    public boolean onPortEditTextHandler(TextView textView, int keyId, KeyEvent keyEvent) {
+        if (keyId == EditorInfo.IME_ACTION_DONE) {
+            continueButtonClickListener();
         }
+        return false;
     }
 
     private void clearInputFields() {
@@ -77,4 +103,15 @@ public class ServerDetailsActivity extends AppCompatActivity {
     public void onBackPressed() {
         return;
     }
+
+    private void fixHelpTextViewMessage() {
+        Intent intent = getIntent();
+        ServerDetailsState state = (ServerDetailsState) intent.getSerializableExtra(getString(R.string.server_details_state_flag));
+        if (state == ServerDetailsState.Invalid) {
+            mHelpMessageTextView.setText(getString(R.string.server_details_invalid));
+        } else {
+            mHelpMessageTextView.setText(getString(R.string.server_details_unset));
+        }
+    }
+
 }

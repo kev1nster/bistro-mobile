@@ -30,9 +30,9 @@ public class ServerAddress {
     @Override
     public String toString() {
         if (StringUtils.isNullOrEmpty(mPort)) {
-            return String.format("http://{0}", mAddress);
+            return String.format("http://%s", mAddress);
         } else {
-            return String.format("http://{0}:{1}", mAddress, mPort);
+            return String.format("http://%s:%d", mAddress, mPort);
         }
     }
 }

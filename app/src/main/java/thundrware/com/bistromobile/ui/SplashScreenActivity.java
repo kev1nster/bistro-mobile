@@ -4,14 +4,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import thundrware.com.bistromobile.AlertMessage;
 import thundrware.com.bistromobile.ServerDetailsState;
 import thundrware.com.bistromobile.data.DataManager;
 import thundrware.com.bistromobile.MyApplication;
 import thundrware.com.bistromobile.R;
-import thundrware.com.bistromobile.ServerManager;
+import thundrware.com.bistromobile.ServerConnectionDetailsManager;
 import thundrware.com.bistromobile.WaiterManager;
+import thundrware.com.bistromobile.listeners.WaiterQueriedListener;
+import thundrware.com.bistromobile.models.Waiter;
+import thundrware.com.bistromobile.networking.DataService;
+import thundrware.com.bistromobile.networking.DataServiceProvider;
 
 public class SplashScreenActivity extends AppCompatActivity {
 
@@ -23,9 +33,9 @@ public class SplashScreenActivity extends AppCompatActivity {
 
         mContext = this;
 
-        ServerManager serverManager = new ServerManager();
-        WaiterManager waiterManager = new WaiterManager();
-        DataManager dataManager = new DataManager();
+        ServerConnectionDetailsManager serverConnectionDetailsManager = new ServerConnectionDetailsManager();
+        final WaiterManager waiterManager = new WaiterManager();
+        final DataManager dataManager = new DataManager();
 
         if (!MyApplication.isNetworkAvailable()) {
 
@@ -33,30 +43,53 @@ public class SplashScreenActivity extends AppCompatActivity {
 
             } else {
 
+            DataService connectionCheckerDataService = DataServiceProvider.create(serverConnectionDetailsManager.getConnectionDetails().toString());
 
-                if (serverManager.detailsAreSet()) {
-                    // details about server connection are set, go ahead into the next phase
-                    if (serverManager.isAccessible()) {
-                        // details are correct, go to the next phase
-                        if (waiterManager.isAnyWaiterLoggedIn()) {
-                            if (!dataManager.isEmpty())
-                                launchMainActivity();
-                            else
-                                launchDataLoadingActivity();
-                        } else {
-                            launchLoginActivity();
+            if (serverConnectionDetailsManager.detailsAreSet()) {
+
+                // it means that the server details are set, check whtether they are correct
+
+                serverConnectionDetailsManager.tryConnection(connectionCheckerDataService, new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        // onResponse means that the IP input by the user is correct and therefore could connect to the server
+                        if (response.isSuccessful()) {
+                            waiterManager.startWaiterAvailabilityChecker(new WaiterQueriedListener() {
+
+                                @Override
+                                public void onWaiterQueried(Waiter waiter) {
+                                    // A waiter was found, check whether there's any data in the database or not
+                                    if (!dataManager.isEmpty()) {
+                                        // Database is loaded already, go to MainActivity
+                                        runOnUiThread(() -> launchMainActivity());
+                                    } else {
+                                        // Database is empty, it means we have to load it with data
+                                        runOnUiThread(() -> launchDataLoadingActivity());
+                                    }
+                                }
+
+                                @Override
+                                public void onError(Throwable e) {
+                                    // No waiter was found, the user needs to login
+                                    runOnUiThread(() -> launchLoginActivity());
+                                }
+                            });
                         }
 
-                    } else {
-                        // server details are set, but it cant connect to server
-                        launchServerDetailsActivity(ServerDetailsState.Invalid);
                     }
 
-                } else {
-                    // server details are not set
-                    launchServerDetailsActivity(ServerDetailsState.Unset);
-                }
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        // server details are set, but it cant connect to server
+                        runOnUiThread(() -> launchServerDetailsActivity(ServerDetailsState.Invalid));
+                    }
+                });
 
+
+            } else {
+                // server details are not set
+                launchServerDetailsActivity(ServerDetailsState.Unset);
+            }
 
         }
 

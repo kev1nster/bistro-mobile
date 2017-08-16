@@ -2,33 +2,35 @@ package thundrware.com.bistromobile.models;
 
 public class Waiter {
 
-    private Integer id;
-    private String name;
+    private Integer Id;
+    private String Name;
+    private String Password;
 
     public String getPassword() {
-        return password;
+        return Password;
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.Password = password;
     }
 
-    private String password;
-
     public Integer getId() {
-        return id;
+        return Id;
     }
 
     public void setId(Integer id) {
-        this.id = id;
+        this.Id = id;
     }
 
     public String getName() {
-        return name;
+        return Name;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.Name = name;
     }
 
+    public boolean hasEmptyOrNullElements() {
+        return (Id == null || Name == null || Password == null);
+    }
 }

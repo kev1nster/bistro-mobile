@@ -1,10 +1,12 @@
 package thundrware.com.bistromobile.data;
 
 import io.realm.Realm;
-import thundrware.com.bistromobile.ServerManager;
+import thundrware.com.bistromobile.ServerConnectionDetailsManager;
 import thundrware.com.bistromobile.listeners.DataProcessingListener;
 import thundrware.com.bistromobile.models.Waiter;
 import thundrware.com.bistromobile.networking.DataService;
+import thundrware.com.bistromobile.networking.DataServiceProvider;
+import thundrware.com.bistromobile.networking.ServerAddress;
 
 public class DataManager implements DataProcessingListener {
 
@@ -14,8 +16,9 @@ public class DataManager implements DataProcessingListener {
 
     public DataManager() {
         mRealm = Realm.getDefaultInstance();
-        ServerManager serverManager = new ServerManager();
-        mDataService = serverManager.getService();
+        ServerConnectionDetailsManager serverConnectionDetailsManager = new ServerConnectionDetailsManager();
+        ServerAddress serverAddress = serverConnectionDetailsManager.getConnectionDetails();
+        mDataService = DataServiceProvider.create(serverAddress.toString());
     }
 
     public void setDataProcessingListener(DataProcessingListener processingListener) {
@@ -41,20 +44,7 @@ public class DataManager implements DataProcessingListener {
     }
 
     public void emptyDatabase() {
-        mRealm.deleteAll();
-    }
-
-    public Waiter getWaiterByPassword(String password) {
-
-        Waiter waiter;
-        try {
-            waiter = mDataService.getWaiter(password).execute().body();
-        } catch (Exception ex) {
-            waiter = null;
-        }
-
-        return waiter;
-
+        mRealm.executeTransaction(realm -> realm.deleteAll());
     }
 
 

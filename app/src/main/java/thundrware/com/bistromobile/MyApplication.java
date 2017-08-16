@@ -6,6 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 public class MyApplication extends Application {
 
@@ -19,6 +20,12 @@ public class MyApplication extends Application {
         super.onCreate();
         MyApplication.context = getApplicationContext();
         Realm.init(this);
+
+        RealmConfiguration config = new RealmConfiguration.Builder()
+                .deleteRealmIfMigrationNeeded()
+                .build();
+
+        Realm.setDefaultConfiguration(config);
     }
 
     public static boolean isNetworkAvailable() {

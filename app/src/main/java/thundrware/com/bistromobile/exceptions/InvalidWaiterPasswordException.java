@@ -1,4 +1,4 @@
-package thundrware.com.bistromobile;
+package thundrware.com.bistromobile.exceptions;
 
 public class InvalidWaiterPasswordException extends Throwable {
 
