@@ -1,9 +1,15 @@
 package thundrware.com.bistromobile.data.repositories;
 
+import android.support.annotation.NonNull;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmQuery;
+import thundrware.com.bistromobile.models.Group;
 import thundrware.com.bistromobile.models.Product;
 
 public class ProductsRepository extends RepositoryBase implements Repository<Product> {
@@ -47,17 +53,21 @@ public class ProductsRepository extends RepositoryBase implements Repository<Pro
 
     @Override
     public void delete(final int id) {
-        realmInstance.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                realm.where(Product.class).equalTo("Id", id).findFirst().deleteFromRealm();
-            }
-        });
+        realmInstance.executeTransaction(realm -> realm.where(Product.class).equalTo("Id", id).findFirst().deleteFromRealm());
     }
 
     @Override
-    public Product get(int id) {
+    public Product get(@NonNull int id) {
         return realmInstance.where(Product.class).equalTo("Id", id).findFirst();
+    }
+
+    public List<Product> get(RealmQuery<Product> realmQuery) {
+        return realmInstance.copyFromRealm(realmQuery.findAll());
+    }
+
+    public List<Product> getWhereGroupIdEquals(int groupId) {
+        RealmQuery<Product> query = realmInstance.where(Product.class).equalTo("GroupId", groupId);
+        return realmInstance.copyFromRealm(query.findAll());
     }
 
     @Override

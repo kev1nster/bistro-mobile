@@ -3,12 +3,10 @@ package thundrware.com.bistromobile.ui;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnEditorAction;
 import thundrware.com.bistromobile.R;
 import thundrware.com.bistromobile.ServerConnectionDetailsManager;
 import thundrware.com.bistromobile.data.DataLoader;
@@ -18,7 +16,6 @@ import thundrware.com.bistromobile.networking.DataServiceProvider;
 
 public class DataLoadingActivity extends AppCompatActivity implements DataProcessingListener {
 
-    @BindView(R.id.loadingProgressBar) ProgressBar mLoadingProgressBar;
     @BindView(R.id.loadingProgressTextView) TextView mLoadingProgressTextView;
 
     @Override
@@ -56,6 +53,6 @@ public class DataLoadingActivity extends AppCompatActivity implements DataProces
 
     @Override
     public void onBackPressed() {
-        return;
+
     }
 }

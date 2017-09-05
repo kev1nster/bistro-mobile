@@ -13,9 +13,20 @@ public class ApplicationPreferences {
     private final String WAITER_PASSWORD = "WAITER_PASSWORD";
     private final String SERVER_IP = "SERVER_IP";
     private final String SERVER_PORT = "SERVER_PORT";
+    private final String ORDER_ADD_INFO_SHOWN = "ORDER_ADD_INFO_SHOWN";
 
     public ApplicationPreferences(Context context) {
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    public void setOrderInfoShown(boolean isSet) {
+        mSharedPreferences.edit()
+                .putBoolean(ORDER_ADD_INFO_SHOWN, isSet)
+                .apply();
+    }
+
+    public boolean wasOrderInfoShown() {
+        return mSharedPreferences.getBoolean(ORDER_ADD_INFO_SHOWN, false);
     }
 
     public int getWaiterId() {

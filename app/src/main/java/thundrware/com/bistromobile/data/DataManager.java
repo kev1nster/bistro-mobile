@@ -1,8 +1,17 @@
 package thundrware.com.bistromobile.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.realm.Realm;
+import io.realm.RealmObject;
+import io.realm.RealmQuery;
 import thundrware.com.bistromobile.ServerConnectionDetailsManager;
 import thundrware.com.bistromobile.listeners.DataProcessingListener;
+import thundrware.com.bistromobile.models.Area;
+import thundrware.com.bistromobile.models.Category;
+import thundrware.com.bistromobile.models.Group;
+import thundrware.com.bistromobile.models.Product;
 import thundrware.com.bistromobile.models.Waiter;
 import thundrware.com.bistromobile.networking.DataService;
 import thundrware.com.bistromobile.networking.DataServiceProvider;
@@ -25,22 +34,24 @@ public class DataManager implements DataProcessingListener {
         mDataProcessingListener = processingListener;
     }
 
-    public void initialize() {
-
-        DataLoader dataLoader = new DataLoader(mDataService, this);
-
-        dataLoader.loadAreas()
-                .loadCategories()
-                .loadGroups()
-                .loadProducts();
-    }
-
     public boolean isEmpty() {
-        if (mRealm.isEmpty()) {
-            return true;
-        } else {
-            return false;
+        List<RealmQuery<? extends RealmObject>> realmEntities = new ArrayList<>();
+
+        realmEntities.add(mRealm.where(Area.class));
+        realmEntities.add(mRealm.where(Product.class));
+        realmEntities.add(mRealm.where(Group.class));
+        realmEntities.add(mRealm.where(Category.class));
+
+        boolean dbIsEmpty = true;
+
+        for (RealmQuery query : realmEntities) {
+            if (query.count() != 0) {
+                dbIsEmpty = false;
+                break;
+            }
         }
+
+        return dbIsEmpty;
     }
 
     public void emptyDatabase() {

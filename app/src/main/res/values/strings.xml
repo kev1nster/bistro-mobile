@@ -3,4 +3,6 @@
     <string name="server_details_state_flag">SERVER_DETAILS_STATE</string>
     <string name="server_details_invalid">Serverul nu poate fi accesat, reintroduceți adresa</string>
     <string name="server_details_unset">Introduceți adresa serverului pentru a vă putea conecta</string>
+    <string name="bottom_sheet_string">android.support.design.widget.BottomSheetBehavior</string>
+    <string name="active_tables_toolbar_title">Comenzi active</string>
 </resources>

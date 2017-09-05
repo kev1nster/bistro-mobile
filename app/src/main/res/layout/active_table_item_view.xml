@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="56dp"
+                                             android:orientation="horizontal"
+                                             android:background="?android:selectableItemBackground">
+
+    <TextView
+        android:id="@+id/activeTableNameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="0dp"
+        android:layout_weight="1"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="51"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="0dp"
+        app:layout_constraintVertical_bias="0.3"/>
+
+    <TextView
+        android:id="@+id/activeTableAreaNameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="0dp"
+        android:gravity="top"
+        android:text="TextView"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toLeftOf="@+id/activeTableNameTextView"
+        app:layout_constraintTop_toBottomOf="@+id/activeTableNameTextView"/>
+
+</android.support.constraint.ConstraintLayout>

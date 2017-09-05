@@ -8,4 +8,8 @@ public class StringUtils {
         }
         return false;
     }
+
+    public static String uppercaseFirstLetter(String text) {
+        return text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
+    }
 }

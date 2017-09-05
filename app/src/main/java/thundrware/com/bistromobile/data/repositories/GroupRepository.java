@@ -58,6 +58,18 @@ public class GroupRepository extends RepositoryBase implements Repository<Group>
         return realmInstance.where(Group.class).equalTo("Id", id).findFirst();
     }
 
+    public List<Group> getWhereGroupIsIn(String groupIdStringList) {
+
+        String[] groupsIdsAsString = groupIdStringList.split(",");
+        Integer[] groupsIds = new Integer[groupsIdsAsString.length];
+
+        for (int i=0; i < groupsIds.length; i++) {
+            groupsIds[i] = Integer.parseInt(groupsIdsAsString[i]);
+        }
+
+        return realmInstance.where(Group.class).in("Id", groupsIds).findAll();
+    }
+
     @Override
     public List<Group> get() {
         return realmInstance.where(Group.class).findAll();

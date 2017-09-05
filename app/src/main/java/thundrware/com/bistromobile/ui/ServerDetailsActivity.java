@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -14,6 +15,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
+import io.realm.Realm;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -22,6 +24,8 @@ import thundrware.com.bistromobile.AlertMessage;
 import thundrware.com.bistromobile.R;
 import thundrware.com.bistromobile.ServerDetailsState;
 import thundrware.com.bistromobile.ServerConnectionDetailsManager;
+import thundrware.com.bistromobile.adapters.ActiveTablesAdapter;
+import thundrware.com.bistromobile.models.Product;
 import thundrware.com.bistromobile.networking.DataService;
 import thundrware.com.bistromobile.networking.DataServiceProvider;
 import thundrware.com.bistromobile.networking.ServerAddress;
@@ -31,7 +35,6 @@ public class ServerDetailsActivity extends AppCompatActivity {
     @BindView(R.id.portEditText) EditText mPortEditText;
     @BindView(R.id.ipAddressEditText) EditText mIpAddressEditText;
     @BindView(R.id.continueServerSettingsButton) Button mContinueButton;
-    @BindView(R.id.serverDetailsHelpMessageTextView) TextView mHelpMessageTextView;
 
     private ServerConnectionDetailsManager mServerConnectionDetailsManager;
 
@@ -106,12 +109,12 @@ public class ServerDetailsActivity extends AppCompatActivity {
 
     private void fixHelpTextViewMessage() {
         Intent intent = getIntent();
-        ServerDetailsState state = (ServerDetailsState) intent.getSerializableExtra(getString(R.string.server_details_state_flag));
+       /* ServerDetailsState state = (ServerDetailsState) intent.getSerializableExtra(getString(R.string.server_details_state_flag));
         if (state == ServerDetailsState.Invalid) {
             mHelpMessageTextView.setText(getString(R.string.server_details_invalid));
         } else {
             mHelpMessageTextView.setText(getString(R.string.server_details_unset));
-        }
+        } */
     }
 
 }

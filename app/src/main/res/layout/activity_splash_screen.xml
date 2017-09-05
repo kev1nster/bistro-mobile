@@ -5,36 +5,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorAccent"
     tools:context="thundrware.com.bistromobile.ui.SplashScreenActivity">
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <ImageView
+        android:id="@+id/splashLogoImageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
+        android:layout_marginLeft="0dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
-        android:fontFamily="cursive"
-        android:text="Bistro"
-        android:textSize="72sp"
+        android:padding="75dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.43"/>
-
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="0dp"
-        android:text="MOBILE"
-        android:textSize="12sp"
-        android:textStyle="bold"
-        app:layout_constraintLeft_toLeftOf="@+id/textView2"
-        app:layout_constraintRight_toRightOf="@+id/textView2"
-        app:layout_constraintTop_toBottomOf="@+id/textView2"/>
+        app:layout_constraintVertical_bias="0.499"
+        />
 </android.support.constraint.ConstraintLayout>

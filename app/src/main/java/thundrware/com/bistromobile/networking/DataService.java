@@ -2,16 +2,20 @@ package thundrware.com.bistromobile.networking;
 
 import java.util.List;
 
-import io.reactivex.Observable;
 import io.reactivex.Single;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Query;
 import thundrware.com.bistromobile.models.Area;
 import thundrware.com.bistromobile.models.Category;
 import thundrware.com.bistromobile.models.Group;
+import thundrware.com.bistromobile.models.OrderDataTransferObject;
 import thundrware.com.bistromobile.models.Product;
+import thundrware.com.bistromobile.models.Table;
 import thundrware.com.bistromobile.models.Waiter;
 
 public interface DataService {
@@ -32,4 +36,22 @@ public interface DataService {
 
     @GET("api/connection/check")
     Call<ResponseBody> checkConnection();
+
+    @GET("api/tables/getAvailableForArea")
+    Single<List<Integer>> getAvailableTablesFor(@Query("areaId") int areaId);
+
+    @GET("api/tables/getActive")
+    Call<ResponseBody> getActive(@Query("waiterId") int waiterId);
+
+    @GET("api/tables/getItems")
+    Call<ResponseBody> getItemsFor(@Query("areaId") int areaId, @Query("tableNumber") int tableNumber, @Query("waiterId") int waiterId);
+
+    @POST("api/tables/create")
+    Call<ResponseBody> createNewTable(@Body Table table, @Query("waiterId") int waiterId);
+
+    @POST("api/tables/insertNewItems")
+    Call<ResponseBody> sendItems(@Body OrderDataTransferObject orderObject);
+
+
+
 }

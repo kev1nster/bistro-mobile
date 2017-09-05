@@ -2,6 +2,7 @@ package thundrware.com.bistromobile.ui;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -10,6 +11,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.github.florent37.viewanimator.ViewAnimator;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -23,6 +25,8 @@ import thundrware.com.bistromobile.listeners.OnLoginHandler;
 public class LoginActivity extends AppCompatActivity {
 
     @BindView(R.id.passwordEditText) EditText mPasswordEditText;
+    @BindView(R.id.loginActivityTextView) TextView mLoginTextView;
+    @BindView(R.id.loginActivityLayout) ConstraintLayout mLoginConstraintLayout;
 
     private Activity mActivity;
 
@@ -31,6 +35,17 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
+
+
+
+
+
+        ViewAnimator.animate(mLoginTextView)
+                        .fadeIn()
+                        .translationY(-150, 0)
+                        .decelerate()
+                        .duration(1000)
+                        .start();
 
         mActivity = this;
     }

@@ -33,4 +33,13 @@ public class AlertMessage {
                 .setTitle("Autentificare eșuată")
                 .show();
     }
+
+    public static void showMessage(Activity activity, String title, String message) {
+        Alerter.create(activity)
+                .enableVibration(true)
+                .setDuration(2000)
+                .setText(message)
+                .setTitle(title)
+                .show();
+    }
 }

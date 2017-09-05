@@ -4,9 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
-
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -26,11 +23,10 @@ import thundrware.com.bistromobile.networking.DataServiceProvider;
 public class SplashScreenActivity extends AppCompatActivity {
 
     private Context mContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash_screen);
-
         mContext = this;
 
         ServerConnectionDetailsManager serverConnectionDetailsManager = new ServerConnectionDetailsManager();

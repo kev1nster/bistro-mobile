@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/setMessage"
+        android:title="Adaugă mesaj pentru bucătărie"
+        android:titleCondensed="setMessage"
+        android:icon="@drawable/ic_message_plus"/>
+
+    <item android:id="@+id/changeClient"
+          android:title="Schimbă clientul (nefuncțional)"
+          android:enabled="false"
+          android:titleCondensed="changeClient"
+        android:icon="@drawable/ic_swap_horizontal"/>
+</menu>

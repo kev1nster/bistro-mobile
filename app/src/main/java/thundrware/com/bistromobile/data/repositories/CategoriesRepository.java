@@ -3,6 +3,7 @@ package thundrware.com.bistromobile.data.repositories;
 import java.util.Collection;
 import java.util.List;
 
+import io.reactivex.annotations.NonNull;
 import io.realm.Realm;
 import thundrware.com.bistromobile.models.Category;
 
@@ -14,12 +15,7 @@ public class CategoriesRepository extends RepositoryBase implements Repository<C
 
     @Override
     public void add(final Category item) {
-        realmInstance.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                realm.copyToRealm(item);
-            }
-        });
+        realmInstance.executeTransaction(realm -> realm.copyToRealm(item));
     }
 
     @Override
@@ -29,29 +25,25 @@ public class CategoriesRepository extends RepositoryBase implements Repository<C
 
     @Override
     public void update(final Category itemToUpdate, final int id) {
-        realmInstance.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                Category category = realm.where(Category.class).equalTo("Id", id).findFirst();
-                category.setName(itemToUpdate.getName());
-                category.setGroupsList(itemToUpdate.getGroupsList());
-            }
+        realmInstance.executeTransaction(realm -> {
+            Category category = realm.where(Category.class).equalTo("Id", id).findFirst();
+            category.setName(itemToUpdate.getName());
+            category.setGroupsList(itemToUpdate.getGroupsList());
         });
     }
 
     @Override
-    public void delete(final int id) {
-        realmInstance.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                realm.where(Category.class).equalTo("Id", id).findFirst().deleteFromRealm();
-            }
-        });
+    public void delete(@NonNull final int id) {
+        realmInstance.executeTransaction(realm -> realm.where(Category.class).equalTo("Id", id).findFirst().deleteFromRealm());
     }
 
     @Override
     public Category get(int id) {
         return realmInstance.where(Category.class).equalTo("Id", id).findFirst();
+    }
+
+    public Category get(String name) {
+        return realmInstance.where(Category.class).equalTo("Name", name).findFirst();
     }
 
     @Override
