@@ -12,16 +12,17 @@
         android:layout_width="match_parent">
 
         <android.support.v7.widget.Toolbar
-            android:layout_height="?attr/actionBarSize"
             android:layout_width="match_parent"
-            app:layout_scrollFlags="scroll|enterAlways"
-            android:background="@color/primaryColor">
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/primaryColor"
+            android:visibility="gone"
+            app:layout_scrollFlags="scroll|enterAlways">
         </android.support.v7.widget.Toolbar>
 
         <android.support.design.widget.TabLayout
             android:id="@+id/orderActivityTabLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:visibility="visible"
             app:tabMode="scrollable"
             app:tabSelectedTextColor="@color/titaniumWhite"
@@ -34,9 +35,12 @@
         android:id="@+id/orderActivityViewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="115dp"
+        android:layout_marginTop="?attr/actionBarSize"
         android:visibility="visible">
 
     </android.support.v4.view.ViewPager>
 
-    <include layout="@layout/order_activity_bottom_sheet_layout"/>
+    <include layout="@layout/order_activity_bottom_sheet_layout"
+        android:id="@+id/bottomSheetLayoutIncluded"/>
 </android.support.design.widget.CoordinatorLayout>

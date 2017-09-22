@@ -5,7 +5,6 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Observer;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
@@ -15,7 +14,8 @@ import thundrware.com.bistromobile.data.repositories.AreasRepository;
 import thundrware.com.bistromobile.data.repositories.CategoriesRepository;
 import thundrware.com.bistromobile.data.repositories.GroupRepository;
 import thundrware.com.bistromobile.data.repositories.ProductsRepository;
-import thundrware.com.bistromobile.listeners.DataProcessingListener;
+import thundrware.com.bistromobile.listeners.DataLoadingListener;
+import thundrware.com.bistromobile.listeners.DataPersistingListener;
 import thundrware.com.bistromobile.models.Area;
 import thundrware.com.bistromobile.models.Category;
 import thundrware.com.bistromobile.models.Group;
@@ -31,162 +31,176 @@ public class DataLoader {
         Groups
     }
 
-    private List<EntitiesToLoad> mEntitiesToLoadList;
-    private DataProcessingListener mProcessFinishedListener;
+    private final List<EntitiesToLoad> entitiesToLoad;
+    private DataLoadingListener dataProcessingListener;
+    private DataService dataService;
 
-    private DataService mDataService;
-
-    public DataLoader(DataService dataService, DataProcessingListener processStatusListener) {
-        mDataService = dataService;
-        mEntitiesToLoadList = new ArrayList<>();
-        mProcessFinishedListener = processStatusListener;
+    public DataLoader(DataService dataService, DataLoadingListener listener) {
+        this.dataService = dataService;
+        entitiesToLoad = new ArrayList<>();
+        dataProcessingListener = listener;
     }
 
-    public DataLoader loadCategories() {
+    public void load() {
 
-        final CategoriesRepository categoriesRepository = new CategoriesRepository();
+        /*
+            Loading Categories
+         */
 
-        mEntitiesToLoadList.add(EntitiesToLoad.Categories);
-
-        mDataService.getCategories()
+        dataService.getCategories()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SingleObserver<List<Category>>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
-
+                        entitiesToLoad.add(EntitiesToLoad.Categories);
                     }
 
                     @Override
                     public void onSuccess(@NonNull List<Category> categoryList) {
-                        onTaskProgressHandler("Configurare categorii...");
-                        categoriesRepository.addRange(categoryList);
-                        Log.e("RXJAVA_TEST", "Categoriile au fost adăugate, mai sunt inca " + mEntitiesToLoadList.size() + " entitati de adaugat");
-                        mEntitiesToLoadList.remove(EntitiesToLoad.Categories);
-                        taskFinishChecker();
+                        // has successfully fetched data from the API
+                        // now let's try to persist it into database
+
+                        CategoriesRepository repository = new CategoriesRepository();
+                        repository.addRangeAsync(categoryList, new DataPersistingListener() {
+                            @Override
+                            public void onSuccess() {
+                                // has successfully persisted data into the database
+                                entitiesToLoad.remove(EntitiesToLoad.Categories);
+                                onEntityPersisted();
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                dataProcessingListener.onError(e);
+                            }
+                        });
+
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-
-                    }
-                });
-        return this;
-    }
-
-    public DataLoader loadProducts() {
-
-        final ProductsRepository productsRepository = new ProductsRepository();
-
-        mEntitiesToLoadList.add(EntitiesToLoad.Products);
-
-        mDataService.getProducts()
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<List<Product>>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onSuccess(@NonNull List<Product> products) {
-                        onTaskProgressHandler("Configurare produse...");
-                        productsRepository.addRange(products);
-                        Log.e("RXJAVA_TEST", "Produsele au fost adăugate, mai sunt inca " + mEntitiesToLoadList.size() + " entitati de adaugat");
-                        mEntitiesToLoadList.remove(EntitiesToLoad.Products);
-                        taskFinishChecker();
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-
+                        dataProcessingListener.onError(e);
                     }
                 });
 
-        return this;
+        /*
+            Loading Areas
+         */
 
-    }
-
-    public DataLoader loadGroups() {
-        final GroupRepository groupRepository = new GroupRepository();
-
-        mEntitiesToLoadList.add(EntitiesToLoad.Groups);
-
-        mDataService.getGroups()
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<List<Group>>() {
-
-                    @Override
-                   public void onSubscribe(@NonNull Disposable d) {
-
-                   }
-
-                   @Override
-                   public void onSuccess(@NonNull List<Group> groups) {
-                       onTaskProgressHandler("Configurare grupe...");
-                       groupRepository.addRange(groups);
-                       Log.e("RXJAVA_TEST", "Grupele au fost adăugate, mai sunt inca " + mEntitiesToLoadList.size() + " entitati de adaugat");
-                       mEntitiesToLoadList.remove(EntitiesToLoad.Groups);
-                       taskFinishChecker();
-                   }
-
-                   @Override
-                   public void onError(@NonNull Throwable e) {
-
-                   }
-
-                });
-            return this;
-    }
-
-    public DataLoader loadAreas() {
-        final AreasRepository areasRepository = new AreasRepository();
-
-        mEntitiesToLoadList.add(EntitiesToLoad.Areas);
-
-        mDataService.getAreas()
+        dataService.getAreas()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SingleObserver<List<Area>>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
-
+                        entitiesToLoad.add(EntitiesToLoad.Areas);
                     }
 
                     @Override
                     public void onSuccess(@NonNull List<Area> areaList) {
-                        onTaskProgressHandler("Configurare zone...");
-                        areasRepository.addRange(areaList);
-                        Log.e("RXJAVA_TEST", "Zonele au fost adăugate, mai sunt inca " + mEntitiesToLoadList.size() + " entitati de adaugat");
-                        mEntitiesToLoadList.remove(EntitiesToLoad.Areas);
-                        taskFinishChecker();
+                        AreasRepository repository = new AreasRepository();
+                        repository.addRangeAsync(areaList, new DataPersistingListener() {
+                            @Override
+                            public void onSuccess() {
+                                entitiesToLoad.remove(EntitiesToLoad.Areas);
+                                onEntityPersisted();
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                dataProcessingListener.onError(e);
+                            }
+                        });
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-
+                        dataProcessingListener.onError(e);
                     }
                 });
-        return this;
+
+        /*
+            Loading Products
+         */
+
+        dataService.getProducts()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<List<Product>>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                        entitiesToLoad.add(EntitiesToLoad.Products);
+                    }
+
+                    @Override
+                    public void onSuccess(@NonNull List<Product> products) {
+                        ProductsRepository repository = new ProductsRepository();
+                        repository.addRangeAsync(products, new DataPersistingListener() {
+                            @Override
+                            public void onSuccess() {
+                                entitiesToLoad.remove(EntitiesToLoad.Products);
+                                onEntityPersisted();
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                dataProcessingListener.onError(e);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        dataProcessingListener.onError(e);
+                    }
+                });
+
+        /*
+            Loading Groups
+         */
+
+        dataService.getGroups()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<List<Group>>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                        entitiesToLoad.add(EntitiesToLoad.Groups);
+                    }
+
+                    @Override
+                    public void onSuccess(@NonNull List<Group> groups) {
+                        GroupRepository repository = new GroupRepository();
+                        repository.addRangeAsync(groups, new DataPersistingListener() {
+                            @Override
+                            public void onSuccess() {
+                                entitiesToLoad.remove(EntitiesToLoad.Groups);
+                                onEntityPersisted();
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                dataProcessingListener.onError(e);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        dataProcessingListener.onError(e);
+                    }
+                });
+
     }
 
-    public boolean hasFinished() {
-        return (mEntitiesToLoadList.size() == 0);
-    }
+    private void onEntityPersisted() {
+        dataProcessingListener.onLoadingProgress("Mai sunt " + entitiesToLoad.size() + " entități de încărcat...");
 
-
-    private void onTaskProgressHandler(String message) {
-        mProcessFinishedListener.onProcessStatusUpdate(message);
-    }
-
-    private void taskFinishChecker() {
-        if (hasFinished()) {
-            mProcessFinishedListener.onProcessFinished();
+        if (entitiesToLoad.size() == 0) {
+            dataProcessingListener.onLoadingFinished();
         }
     }
-
 
 
 }

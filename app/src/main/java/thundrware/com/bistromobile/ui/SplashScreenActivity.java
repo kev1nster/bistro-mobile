@@ -89,6 +89,8 @@ public class SplashScreenActivity extends AppCompatActivity {
 
         }
 
+
+
     }
 
     private void launchLoginActivity() {

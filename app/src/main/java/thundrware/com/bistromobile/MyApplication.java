@@ -7,6 +7,7 @@ import android.net.NetworkInfo;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.rx.RealmObservableFactory;
 
 public class MyApplication extends Application {
 

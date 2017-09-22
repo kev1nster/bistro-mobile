@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Button;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -24,7 +25,9 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import thundrware.com.bistromobile.AlertMessage;
+import thundrware.com.bistromobile.ActivationKeyManager;
+import thundrware.com.bistromobile.Message;
+import thundrware.com.bistromobile.MyApplication;
 import thundrware.com.bistromobile.OrderDetailsEditor;
 import thundrware.com.bistromobile.R;
 import thundrware.com.bistromobile.ServerConnectionDetailsManager;
@@ -42,6 +45,9 @@ public class TablePickingActivity extends AppCompatActivity {
 
     @BindView(R.id.tablePickingSpinner)
     MaterialSpinner mTablePickingSpinner;
+
+    @BindView(R.id.createTableButton)
+    Button createTableButton;
 
     private Activity mActivity;
     private DataService mDataService;
@@ -100,7 +106,7 @@ public class TablePickingActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        AlertMessage.showMessage(mActivity, "Eroare", e.getMessage());
+                        Message.showError(mActivity, e.getMessage());
                     }
                 });
     }
@@ -120,33 +126,59 @@ public class TablePickingActivity extends AppCompatActivity {
         table.setAreaId(selectedAreaId);
         table.setTableNumber(tableNumber);
 
-        mDataService.createNewTable(table, waiterId).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    runOnUiThread(() -> {
+        ActivationKeyManager manager = new ActivationKeyManager(this);
 
-                        OrderDetailsEditor.createNew(table);
+        if (MyApplication.isNetworkAvailable()) {
 
-                        Intent intent = new Intent(mActivity, OrderManagementActivity.class);
-                        intent.putExtra("CREATED", "CREATED");
-                        startActivity(intent);
+            disableCreateTableButton();
 
-                    });
-                } else {
-                    runOnUiThread(() -> {
-                        AlertMessage.showMessage(mActivity, "Eroare", "Masa a fost creată deja. Reîncercați.");
-                        int spinnerSelectedItemIndex = mAreasRepository.get().get(mTablePickingSpinner.getSelectedIndex()).getId();
-                        loadTablesSpinnerWithTablesFromArea(spinnerSelectedItemIndex);
-                    });
+            mDataService.createNewTable(manager.getToken(), table, waiterId).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        runOnUiThread(() -> {
+
+                            OrderDetailsEditor.createNew(table);
+
+                            Intent intent = new Intent(mActivity, OrderManagementActivity.class);
+                            intent.putExtra("CREATED", "CREATED");
+                            startActivity(intent);
+                            finish();
+
+                        });
+                    } else {
+                        runOnUiThread(() -> {
+                            enableCreateTableButton();
+                            if (response.code() == 401) {
+                                Message.showUnauthorizedAccess(mActivity);
+                            } else {
+                                Message.showError(mActivity, "Masa a fost creată deja. Reîncercați.");
+                                int spinnerSelectedItemIndex = mAreasRepository.get().get(mTablePickingSpinner.getSelectedIndex()).getId();
+                                loadTablesSpinnerWithTablesFromArea(spinnerSelectedItemIndex);
+                            }
+                        });
+
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                runOnUiThread(() -> AlertMessage.showMessage(mActivity, "Eroare", "Deschiderea mesei a eșuat (" + t.getMessage() + ")."));
-            }
-        });
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    runOnUiThread(() -> Message.showError(mActivity, "Deschiderea mesei a eșuat (" + t.getMessage() + ")."));
+                }
+            });
+        } else {
+            Message.showError(this, "Dispozitivul nu este conectat la internet!");
+        }
+    }
+
+    private void enableCreateTableButton() {
+        createTableButton.setEnabled(true);
+        createTableButton.setText(R.string.create_table_button_text);
+    }
+
+    private void disableCreateTableButton() {
+        createTableButton.setEnabled(false);
+        createTableButton.setText("SE DESCHIDE...");
     }
 
     @Override
@@ -156,10 +188,10 @@ public class TablePickingActivity extends AppCompatActivity {
 
         new MaterialDialog.Builder(this)
                 .title("Anulare comandă")
-                .content("Ești pe cale să anulezi crearea unei comenzi. Ești sigur că vrei să faci asta?")
+                .content("Dacă renunți vei anula crearea mesei. Vrei să faci asta?")
                 .positiveText("DA")
                 .onPositive((dialog, which) -> activityToBeClosed.finish())
-                .negativeText("ANULARE")
+                .negativeText("NU")
                 .onNegative((dialog, which) -> dialog.dismiss())
                 .show();
     }

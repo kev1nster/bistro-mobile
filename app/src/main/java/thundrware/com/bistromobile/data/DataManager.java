@@ -7,21 +7,20 @@ import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmQuery;
 import thundrware.com.bistromobile.ServerConnectionDetailsManager;
-import thundrware.com.bistromobile.listeners.DataProcessingListener;
+import thundrware.com.bistromobile.listeners.DataLoadingListener;
 import thundrware.com.bistromobile.models.Area;
 import thundrware.com.bistromobile.models.Category;
 import thundrware.com.bistromobile.models.Group;
 import thundrware.com.bistromobile.models.Product;
-import thundrware.com.bistromobile.models.Waiter;
 import thundrware.com.bistromobile.networking.DataService;
 import thundrware.com.bistromobile.networking.DataServiceProvider;
 import thundrware.com.bistromobile.networking.ServerAddress;
 
-public class DataManager implements DataProcessingListener {
+public class DataManager {
 
     private DataService mDataService;
     private Realm mRealm;
-    private DataProcessingListener mDataProcessingListener;
+    private DataLoadingListener mDataProcessingListener;
 
     public DataManager() {
         mRealm = Realm.getDefaultInstance();
@@ -30,7 +29,7 @@ public class DataManager implements DataProcessingListener {
         mDataService = DataServiceProvider.create(serverAddress.toString());
     }
 
-    public void setDataProcessingListener(DataProcessingListener processingListener) {
+    public void setDataProcessingListener(DataLoadingListener processingListener) {
         mDataProcessingListener = processingListener;
     }
 
@@ -56,16 +55,5 @@ public class DataManager implements DataProcessingListener {
 
     public void emptyDatabase() {
         mRealm.executeTransaction(realm -> realm.deleteAll());
-    }
-
-
-    @Override
-    public void onProcessFinished() {
-        mDataProcessingListener.onProcessFinished();
-    }
-
-    @Override
-    public void onProcessStatusUpdate(String message) {
-        mDataProcessingListener.onProcessStatusUpdate(message);
     }
 }

@@ -21,6 +21,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import thundrware.com.bistromobile.AlertMessage;
+import thundrware.com.bistromobile.Message;
+import thundrware.com.bistromobile.MyApplication;
 import thundrware.com.bistromobile.R;
 import thundrware.com.bistromobile.ServerDetailsState;
 import thundrware.com.bistromobile.ServerConnectionDetailsManager;
@@ -61,26 +63,42 @@ public class ServerDetailsActivity extends AppCompatActivity {
 
         DataService dataService = DataServiceProvider.create(serverAddress.toString());
 
-        mServerConnectionDetailsManager.tryConnection(dataService, new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+        disableContinueButton();
+        if (MyApplication.isNetworkAvailable()) {
+            mServerConnectionDetailsManager.tryConnection(dataService, new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
-                // succesfully connected to the server, persist details
-                mServerConnectionDetailsManager.setConnectionDetails(serverAddress);
+                    // successfully connected to the server, persist details
+                    mServerConnectionDetailsManager.setConnectionDetails(serverAddress);
 
-                // open the login activity
-                runOnUiThread(() -> launchLoginActivity());
-            }
+                    // launch the login activity
+                    runOnUiThread(() -> launchLoginActivity());
+                }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                runOnUiThread(() -> {
-                    AlertMessage.showInvalidServerConnectionDetailsMessage(activity);
-                    clearInputFields();
-                });
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    runOnUiThread(() -> {
+                        Message.showError(activity, "Datele de conectare introduse nu sunt corecte. Reîncercați.");
+                        clearInputFields();
+                        enableContinueButton();
+                    });
 
-            }
-        });
+                }
+            });
+        } else {
+            Message.showError(this, "Dispozitivul nu este conectat la internet.");
+        }
+    }
+
+    private void disableContinueButton() {
+        mContinueButton.setText("SE ÎNCARCĂ...");
+        mContinueButton.setEnabled(false);
+    }
+
+    private void enableContinueButton() {
+        mContinueButton.setText("CONTINUĂ");
+        mContinueButton.setEnabled(true);
     }
 
     @OnEditorAction(R.id.portEditText)

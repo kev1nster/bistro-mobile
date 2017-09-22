@@ -14,14 +14,25 @@ public class ApplicationPreferences {
     private final String SERVER_IP = "SERVER_IP";
     private final String SERVER_PORT = "SERVER_PORT";
     private final String ORDER_ADD_INFO_SHOWN = "ORDER_ADD_INFO_SHOWN";
+    private final String ACTIVATION_TOKEN = "ACTIVATION_TOKEN";
 
     public ApplicationPreferences(Context context) {
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
-    public void setOrderInfoShown(boolean isSet) {
+    public void setActivationToken(String token) {
         mSharedPreferences.edit()
-                .putBoolean(ORDER_ADD_INFO_SHOWN, isSet)
+                .putString(ACTIVATION_TOKEN, token)
+                .apply();
+    }
+
+    public String getActivationToken() {
+        return mSharedPreferences.getString(ACTIVATION_TOKEN, "");
+    }
+
+    public void setOrderInfoShown() {
+        mSharedPreferences.edit()
+                .putBoolean(ORDER_ADD_INFO_SHOWN, true)
                 .apply();
     }
 

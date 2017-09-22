@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import io.reactivex.annotations.NonNull;
-import io.realm.Realm;
+import thundrware.com.bistromobile.listeners.DataPersistingListener;
 import thundrware.com.bistromobile.models.Category;
 
 public class CategoriesRepository extends RepositoryBase implements Repository<Category> {
@@ -21,6 +21,12 @@ public class CategoriesRepository extends RepositoryBase implements Repository<C
     @Override
     public void addRange(final Collection<Category> items) {
         realmInstance.executeTransaction(realm -> realm.copyToRealm(items));
+    }
+
+    public void addRangeAsync(final Collection<Category> items, final DataPersistingListener listener) {
+       realmInstance.executeTransactionAsync(realm -> realm.copyToRealm(items),
+               () -> listener.onSuccess(),
+               error -> listener.onError(error));
     }
 
     @Override

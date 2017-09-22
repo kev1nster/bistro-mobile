@@ -8,6 +8,8 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 import thundrware.com.bistromobile.models.Area;
@@ -47,10 +49,10 @@ public interface DataService {
     Call<ResponseBody> getItemsFor(@Query("areaId") int areaId, @Query("tableNumber") int tableNumber, @Query("waiterId") int waiterId);
 
     @POST("api/tables/create")
-    Call<ResponseBody> createNewTable(@Body Table table, @Query("waiterId") int waiterId);
+    Call<ResponseBody> createNewTable(@Header("TOKEN") String authenticationToken, @Body Table table, @Query("waiterId") int waiterId);
 
     @POST("api/tables/insertNewItems")
-    Call<ResponseBody> sendItems(@Body OrderDataTransferObject orderObject);
+    Call<ResponseBody> sendItems(@Header("TOKEN") String authenticationToken, @Body OrderDataTransferObject orderObject);
 
 
 

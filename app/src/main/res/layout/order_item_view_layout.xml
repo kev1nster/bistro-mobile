@@ -8,120 +8,82 @@
     >
 
     <TextView
-        android:id="@+id/orderItemDishSwitcherTextView"
+        android:id="@+id/orderItemProductNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="0dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:clickable="false"
+        android:longClickable="false"
         android:fontFamily="sans-serif-condensed"
-        android:paddingBottom="12dp"
-        android:paddingTop="12dp"
-        android:text="dish_type"
-        android:textAllCaps="false"
-        android:textColor="@color/secondaryTextColor"
+        android:text="---"
+        android:textColor="@android:color/black"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/itemIncrementImageView"
-        app:layout_constraintTop_toTopOf="parent"/>
-
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/orderItemDetailsConstraintLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="0dp"
-        android:layout_marginTop="0dp"
-        android:paddingBottom="8dp"
-        android:paddingTop="8dp"
-        android:visibility="visible"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/orderItemPriceTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="0dp"
-            android:layout_marginTop="4dp"
-            android:fontFamily="sans-serif-condensed"
-            android:text="product_price"
-            android:textAllCaps="false"
-            android:textColor="@color/paleWhite"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            app:layout_constraintLeft_toLeftOf="@+id/orderItemNameTextView"
-            app:layout_constraintTop_toBottomOf="@+id/orderItemNameTextView"/>
-
-        <TextView
-            android:id="@+id/orderItemNameTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="0dp"
-            android:fontFamily="sans-serif-condensed"
-            android:text="product_name"
-            android:textColor="@android:color/black"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-        <TextView
-            android:id="@+id/orderItemMultiplierTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
-            android:layout_marginStart="4dp"
-            android:text="x "
-            android:textAlignment="center"
-            android:textColor="@color/paleWhite"
-            android:textSize="10sp"
-            app:layout_constraintLeft_toRightOf="@+id/orderItemPriceTextView"
-            app:layout_constraintTop_toTopOf="@+id/orderItemPriceTextView"/>
-
-        <TextView
-            android:id="@+id/orderItemQuantityTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="3dp"
-            android:layout_marginStart="3dp"
-            android:fontFamily="sans-serif-condensed"
-            android:text="product_q"
-            android:textColor="@color/paleWhite"
-            android:textSize="10sp"
-            app:layout_constraintLeft_toRightOf="@+id/orderItemMultiplierTextView"
-            app:layout_constraintTop_toTopOf="@+id/orderItemPriceTextView"/>
-    </android.support.constraint.ConstraintLayout>
-
-    <ImageView
-        android:id="@+id/itemSubstractImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_marginRight="2dp"
-        android:layout_marginTop="0dp"
-        android:paddingBottom="8dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingTop="8dp"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:src="@drawable/ic_minus_circle"/>
-
-    <ImageView
-        android:id="@+id/itemIncrementImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_marginBottom="0dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="0dp"
-        android:adjustViewBounds="false"
-        android:cropToPadding="false"
-        android:paddingBottom="8dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/itemSubstractImageView"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5"
-        android:src="@drawable/ic_plus_circle"/>
+        tools:text="CIORBA CIORBA CIORBA CIORBA "
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"/>
 
+    <TextView
+        android:id="@+id/orderItemAmountTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="0dp"
+        android:text="5"
+        android:clickable="false"
+        android:longClickable="false"
+        android:textColor="@color/secondaryColor"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/orderItemProductNameTextView"
+        app:layout_constraintVertical_bias="0.5"/>
+
+    <TextView
+        android:id="@+id/orderItemDishNumberTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="0dp"
+        android:padding="10dp"
+        android:text="---"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/orderItemIncrementImageView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.538"
+        tools:text="FELUL 1"/>
+
+    <ImageView
+        android:id="@+id/orderItemSubstractImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="8dp"
+        android:padding="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:src="@drawable/ic_minus_circle"/>
+
+    <ImageView
+        android:id="@+id/orderItemIncrementImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="8dp"
+        android:padding="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/orderItemSubstractImageView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:src="@drawable/ic_plus_circle"/>
 </android.support.constraint.ConstraintLayout>

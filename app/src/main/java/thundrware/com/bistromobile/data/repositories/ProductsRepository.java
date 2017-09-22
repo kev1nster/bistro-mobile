@@ -9,6 +9,7 @@ import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmQuery;
+import thundrware.com.bistromobile.listeners.DataPersistingListener;
 import thundrware.com.bistromobile.models.Group;
 import thundrware.com.bistromobile.models.Product;
 
@@ -36,6 +37,12 @@ public class ProductsRepository extends RepositoryBase implements Repository<Pro
                 realm.copyToRealm(items);
             }
         });
+    }
+
+    public void addRangeAsync(final Collection<Product> items, DataPersistingListener listener) {
+        realmInstance.executeTransactionAsync(realm -> realm.copyToRealm(items),
+                () -> listener.onSuccess(),
+                error -> listener.onError(error));
     }
 
     @Override

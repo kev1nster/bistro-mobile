@@ -27,14 +27,18 @@ public class OrderItemEditor {
         realm.executeTransaction(realm1 -> orderItem.increaseQuantity());
     }
 
-    public void substractQuantity() throws NegativeQuantityException {
+    public void substractQuantity()  {
         if ((orderItem.getQuantity() - 1) > 0) {
             realm.executeTransaction(realm1 -> orderItem.decreaseQuantity());
-        } else if ((orderItem.getQuantity() - 1) == 0) {
+        } else if ((orderItem.getQuantity() - 1) <= 0) {
             // TODO
-            realm.executeTransaction(realm1 -> orderItem.deleteFromRealm());
-        } else if ((orderItem.getQuantity() - 1 < 0)) {
-            throw new NegativeQuantityException();
+            realm.executeTransaction(realm1 -> {
+                OrderItem item = realm1.where(OrderItem.class)
+                        .equalTo("Id", orderItem.getId()).findFirst();
+                if (item != null) {
+                    item.deleteFromRealm();
+                }
+            });
         }
     }
 

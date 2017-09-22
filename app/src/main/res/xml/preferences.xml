@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="PREFERENCE_SCREEN">
+
+
+    <Preference
+        android:key="activate"
+        android:title="Activare cheie"
+        android:icon="@drawable/ic_key"
+        android:summary="Activează cheia de autentificare pentru a te putea conecta la server"
+        >
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="thundrware.com.bistromobile"
+            android:targetClass="thundrware.com.bistromobile.ui.KeyActivationActivity"
+            />
+    </Preference>
+    <Preference
+        android:key="data_reload"
+        android:title="Reîncărcare date"
+        android:icon="@drawable/ic_reload"
+        android:summary="Permite actualizarea datelor în caz că au fost actualizate (produse, zone, etc.)"/>
+    <Preference
+         android:key="logout"
+         android:title="Deconectare"
+         android:icon="@drawable/ic_logout"
+        android:summary="Deconectează-te din aplicație"/>
+</PreferenceScreen>

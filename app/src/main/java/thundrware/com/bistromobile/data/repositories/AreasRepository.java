@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import io.realm.Realm;
+import thundrware.com.bistromobile.listeners.DataPersistingListener;
 import thundrware.com.bistromobile.models.Area;
 
 
@@ -31,6 +32,12 @@ public class AreasRepository extends RepositoryBase implements Repository<Area> 
                 realm.copyToRealm(items);
             }
         });
+    }
+
+    public void addRangeAsync(final Collection<Area> items, DataPersistingListener listener) {
+        realmInstance.executeTransactionAsync(realm -> realm.copyToRealm(items),
+                () -> listener.onSuccess(),
+                error -> listener.onError(error));
     }
 
     @Override

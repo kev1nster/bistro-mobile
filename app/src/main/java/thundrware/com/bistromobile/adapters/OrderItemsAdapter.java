@@ -2,16 +2,22 @@ package thundrware.com.bistromobile.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
@@ -22,6 +28,7 @@ import com.github.florent37.viewanimator.ViewAnimator;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.OrderedRealmCollection;
+import io.realm.Realm;
 import io.realm.RealmRecyclerViewAdapter;
 import ru.whalemare.sheetmenu.SheetMenu;
 import thundrware.com.bistromobile.AlertMessage;
@@ -57,77 +64,60 @@ public class OrderItemsAdapter extends RealmRecyclerViewAdapter<OrderItem, Order
 
     public class OrderItemViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.orderItemDetailsConstraintLayout)
-        ConstraintLayout mOrderItemDetailsConstraintLayout;
+        @BindView(R.id.orderItemAmountTextView)
+        TextView productAmountTextView;
 
-        @BindView(R.id.orderItemNameTextView)
-        TextView mOrderItemNameTextView;
+        @BindView(R.id.orderItemProductNameTextView)
+        TextView productNameTextView;
 
-        @BindView(R.id.orderItemPriceTextView)
-        TextView mOrderItemPriceTextView;
+        @BindView(R.id.orderItemSubstractImageView)
+        ImageView substractImageView;
 
-        @BindView(R.id.orderItemQuantityTextView)
-        TextView mOrderItemQuantityTextView;
+        @BindView(R.id.orderItemIncrementImageView)
+        ImageView incrementImageView;
 
-        @BindView(R.id.orderItemDishSwitcherTextView)
-        TextView mOrderItemDishSwitcherTextView;
-
-        @BindView(R.id.itemIncrementImageView)
-        ImageView mItemIncrementImageView;
-
-        @BindView(R.id.itemSubstractImageView)
-        ImageView mItemSubstractImageView;
-
-        View mView;
+        @BindView(R.id.orderItemDishNumberTextView)
+        TextView dishNumberTextView;
 
         public OrderItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-            mView = itemView;
         }
 
         public void onBind(OrderItem orderItem) {
 
+            // Setting the item amount
+            productAmountTextView.setText(String.valueOf(orderItem.getQuantity()));
 
-            setItemNameText(orderItem.getProduct().getName());
-            setItemPriceText(orderItem.getProduct().getPrice());
-            setItemQuantityText(orderItem.getQuantity());
+            // Setting the product name
+            productNameTextView.setText(ellipsize(orderItem.getProduct().getName(), 30));
 
             if (orderItem.isNew()) {
+                // Setting dish switcher text
+                setDishNumberText(orderItem.getDishNumber());
 
-                setDishSwitcherText(orderItem.getDishNumber());
-                mOrderItemDishSwitcherTextView.setOnClickListener(createOnDishSwitcherClickListener(orderItem));
-                mOrderItemDetailsConstraintLayout.setOnClickListener(createOnItemClickListener(orderItem));
-                mItemSubstractImageView.setOnLongClickListener(createSubstractImageViewLongClickListener(orderItem));
-                mItemSubstractImageView.setOnClickListener(createSusbtractImageViewClickListener(orderItem));
-                mItemIncrementImageView.setOnClickListener(createIncrementImageViewClickListener(orderItem));
-                mView.setOnLongClickListener(createOnItemViewLongClickListener(orderItem));
+                // Setting dish switcher click listener
+                dishNumberTextView.setOnClickListener(createOnDishSwitcherClickListener(orderItem));
 
-                setViewsVisibility(View.VISIBLE, mItemIncrementImageView, mItemSubstractImageView, mOrderItemDishSwitcherTextView);
+                // Setting increment imageView click listener
+                incrementImageView.setOnClickListener(createIncrementImageViewClickListener(orderItem));
+
+                // Setting substract imageView click listener & longClick listener
+                substractImageView.setOnClickListener(createSusbtractImageViewClickListener(orderItem));
+                substractImageView.setOnLongClickListener(createSubstractImageViewLongClickListener(orderItem));
 
             } else {
-
                 /*
                     The order is loaded, therefore it means that the waiter isn't allowed to change the dish number, substract, increment or edit the quantity of an item.
                     */
-                setViewsVisibility(View.INVISIBLE, mItemIncrementImageView, mItemSubstractImageView, mOrderItemDishSwitcherTextView);
+                setViewsVisibility(View.GONE, dishNumberTextView, incrementImageView, substractImageView);
+
             }
         }
 
-        private void setItemQuantityText(Double quantityText) {
-            mOrderItemQuantityTextView.setText(String.valueOf(quantityText));
-        }
 
-        private void setItemNameText(String itemName) {
-            mOrderItemNameTextView.setText(itemName);
-        }
 
-        private void setItemPriceText(Double itemPrice) {
-            mOrderItemPriceTextView.setText(String.valueOf(itemPrice));
-        }
-
-        private void setDishSwitcherText(int dishNumber) {
-
+        private void setDishNumberText(int dishNumber) {
             String dishText = "";
 
             switch(dishNumber) {
@@ -142,28 +132,52 @@ public class OrderItemsAdapter extends RealmRecyclerViewAdapter<OrderItem, Order
                     break;
             }
 
-            mOrderItemDishSwitcherTextView.setText(dishText);
+            dishNumberTextView.setText(dishText);
         }
 
-        private View.OnClickListener createOnItemClickListener(final OrderItem orderItem) {
-            return view -> new MaterialDialog.Builder(mContext)
-                    .title("Editare cantitate")
-                    .content("Introdu noua cantitate dorită")
-                    .inputType(InputType.TYPE_NUMBER_FLAG_DECIMAL)
-                    .input(null, null, (dialog, input) -> {
 
-                        if (!StringUtils.isNullOrEmpty(input.toString())) {
-                            OrderItemEditor.edit(orderItem)
-                                    .newQuantity(Double.parseDouble(input.toString()));
 
-                            // TODO Exception in case the waiter has input some bad shit
+        /*
+            Start of ellipsize-related stuff
+         */
 
-                            onQuantityChangedHandler(orderItem);
-                        }
-                    })
-                    .positiveText("MODIFICĂ")
-                    .show();
+        private final String NON_THIN = "[^iIl1\\.,']";
+
+        private int textWidth(String str) {
+            return (int) (str.length() - str.replaceAll(NON_THIN, "").length() / 2);
         }
+
+        public String ellipsize(String text, int max) {
+
+            if (textWidth(text) <= max)
+                return text;
+
+            // Start by chopping off at the word before max
+            // This is an over-approximation due to thin-characters...
+            int end = text.lastIndexOf(' ', max - 3);
+
+            // Just one long word. Chop it off.
+            if (end == -1)
+                return text.substring(0, max-3) + "...";
+
+            // Step forward as long as textWidth allows.
+            int newEnd = end;
+            do {
+                end = newEnd;
+                newEnd = text.indexOf(' ', end + 1);
+
+                // No more spaces.
+                if (newEnd == -1)
+                    newEnd = text.length();
+
+            } while (textWidth(text.substring(0, newEnd) + "...") < max);
+
+            return text.substring(0, end) + "...";
+        }
+
+        /*
+            End of ellipsize-related stuff
+         */
 
         private View.OnClickListener createOnDishSwitcherClickListener(final OrderItem orderItem) {
             return view -> {
@@ -191,12 +205,6 @@ public class OrderItemsAdapter extends RealmRecyclerViewAdapter<OrderItem, Order
                         break;
                 }
 
-                ViewAnimator.animate(dishTextView)
-                                .bounce()
-                                .duration(2000)
-                                .start();
-
-
             };
         }
 
@@ -210,15 +218,23 @@ public class OrderItemsAdapter extends RealmRecyclerViewAdapter<OrderItem, Order
 
         private View.OnClickListener createSusbtractImageViewClickListener(final OrderItem orderItem) {
             return view -> {
-                try {
+
+                if (orderItem.getQuantity() -1 <= 0) {
+                    new MaterialDialog.Builder(mContext)
+                            .title("Alertă")
+                            .content("Cantitatea va fi negativă. Doriți să ștergeți?")
+                            .positiveText("DA")
+                            .negativeText("NU")
+                            .onPositive((dialog, which) -> {
+                                OrderItemEditor.edit(orderItem)
+                                        .substractQuantity();
+
+                            }).show();
+                } else {
                     OrderItemEditor.edit(orderItem)
                             .substractQuantity();
-                } catch (Exception ex) {
-                    AlertMessage.showMessage((Activity)mContext, "Eroare", "Cantitatea va fi nula, mai bine stergeti-l");
-                    // TODO
                 }
 
-                onQuantityChangedHandler(orderItem);
             };
         }
 
@@ -226,8 +242,6 @@ public class OrderItemsAdapter extends RealmRecyclerViewAdapter<OrderItem, Order
             return view -> {
                 OrderItemEditor.edit(orderItem)
                         .incrementQuantity();
-
-                onQuantityChangedHandler(orderItem);
             };
         }
 
@@ -246,7 +260,7 @@ public class OrderItemsAdapter extends RealmRecyclerViewAdapter<OrderItem, Order
                                             .content("Introdu mesajul pentru bucătărie")
                                             .inputType(InputType.TYPE_CLASS_TEXT)
                                             .positiveText("ADAUGĂ")
-                                            .input(null, null, (dialog, input) -> {
+                                            .input(null, orderItem.getMessage(), (dialog, input) -> {
                                                 if (!StringUtils.isNullOrEmpty(input.toString())) {
                                                     OrderItemEditor.edit(orderItem)
                                                             .setMessage(input.toString());
@@ -290,10 +304,6 @@ public class OrderItemsAdapter extends RealmRecyclerViewAdapter<OrderItem, Order
             for (View view : views) {
                 view.setVisibility(visibility);
             }
-        }
-
-        private void onQuantityChangedHandler(OrderItem orderItem) {
-            setItemQuantityText(orderItem.getQuantity());
         }
     }
 }

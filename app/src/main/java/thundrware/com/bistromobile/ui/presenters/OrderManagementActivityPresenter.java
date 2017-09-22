@@ -12,14 +12,6 @@ public class OrderManagementActivityPresenter {
         this.view = view;
     }
 
-    public void productsRecyclerViewReloaded(int categoryId) {
-        view.reloadProductsRecyclerView(categoryId);
-    }
-
-    public void totalAmountChanged(Double value) {
-        view.changeTotalAmount(value);
-    }
-
     public void tableDetailsLoaded(Table table) {
         view.changeTableDetails(table);
     }

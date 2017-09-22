@@ -2,14 +2,21 @@ package thundrware.com.bistromobile.ui;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.ImageView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
 import com.getkeepsafe.taptargetview.TapTargetView;
@@ -29,6 +36,8 @@ import retrofit2.Response;
 import thundrware.com.bistromobile.ActiveTablesConverter;
 import thundrware.com.bistromobile.AlertMessage;
 import thundrware.com.bistromobile.ApplicationPreferences;
+import thundrware.com.bistromobile.Message;
+import thundrware.com.bistromobile.MyApplication;
 import thundrware.com.bistromobile.R;
 import thundrware.com.bistromobile.Resources;
 import thundrware.com.bistromobile.ServerConnectionDetailsManager;
@@ -51,6 +60,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityView{
 
     @BindView(R.id.floatingActionButton)
     FloatingActionButton mFloatingActionButton;
+
+    @BindView(R.id.swipeRefreshLayout)
+    SwipeRefreshLayout mRefreshLayout;
 
     private DataService mActiveTablesRetrievingService;
     private WaiterManager mWaiterManager;
@@ -76,33 +88,16 @@ public class MainActivity extends AppCompatActivity implements MainActivityView{
             Toolbar setup
          */
 
-        mToolbar.setTitle(Resources.getString(R.string.active_tables_toolbar_title));
+        mToolbar.setTitle(mWaiterManager.getCurrentWaiter().getName());
         setSupportActionBar(mToolbar);
 
         /*
             ActiveTablesRecyclerView setup
          */
 
-        mActiveTablesRetrievingService.getActive(mWaiterManager.getCurrentWaiter().getId()).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+        fetchActiveTablesData();
 
-                List<ActiveTable> activeTablesList = new ArrayList<>();
-                try {
-                    String jsonData = response.body().string();
-                    activeTablesList = ActiveTablesConverter.from(jsonData).convert();
-                } catch (Exception ex) {
-                    runOnUiThread(() -> AlertMessage.showMessage(activity, "Eroare", "ResponseBody could not be converted"));
-                }
-
-                presenter.activeTablesDataReceived(activeTablesList);
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                runOnUiThread(() -> AlertMessage.showMessage(activity, "Eroare", t.getMessage()));
-            }
-        });
+        mRefreshLayout.setOnRefreshListener(() -> fetchActiveTablesData());
 
 
         /*
@@ -112,19 +107,71 @@ public class MainActivity extends AppCompatActivity implements MainActivityView{
         ApplicationPreferences preferences = new ApplicationPreferences(this);
 
         if (!preferences.wasOrderInfoShown()) {
-            TapTargetView.showFor(this, TapTarget.forView(mRecyclerView, "Lista cu comenzi active", "Apasă pe oricare dintre ele pentru a deschide o comandă activă")
+            TapTargetView.showFor(this, TapTarget.forView(mFloatingActionButton, "Comandă nouă", "Apasă acest buton pentru a crea o comandă nouă")
                     .transparentTarget(true),
                     new TapTargetView.Listener() {
                         @Override
                         public void onTargetClick(TapTargetView view) {
-                            onFloatingActionButtonClicked();
+                            super.onTargetClick(view);
+                            preferences.setOrderInfoShown();
                         }
                     });
         }
 
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fetchActiveTablesData();
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (item.getItemId() == R.id.action_settings) {
+            onToolbarSettingsButtonClicked();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void fetchActiveTablesData() {
+        if (MyApplication.isNetworkAvailable()) {
+            mActiveTablesRetrievingService.getActive(mWaiterManager.getCurrentWaiter().getId()).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                    List<ActiveTable> activeTablesList = new ArrayList<>();
+                    try {
+                        String jsonData = response.body().string();
+                        activeTablesList = ActiveTablesConverter.from(jsonData).convert();
+                    } catch (Exception ex) {
+                        runOnUiThread(() -> Message.showError(activity, "A apărut o eroare la convertirea meselor."));
+                    }
+
+                    presenter.activeTablesDataReceived(activeTablesList);
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    runOnUiThread(() -> Message.showError(activity, t.getMessage()));
+                }
+            });
+        } else {
+            Message.showError(activity, "Dispozitivul nu este conectat la internet.");
+        }
+    }
+
+    public void onToolbarSettingsButtonClicked() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
 
     @OnClick(R.id.floatingActionButton)
@@ -134,7 +181,16 @@ public class MainActivity extends AppCompatActivity implements MainActivityView{
 
     @Override
     public void onBackPressed() {
-        return;
+        final Activity activityToFinish = this;
+
+        new MaterialDialog.Builder(this)
+                .title("Ieșire")
+                .content("Doriți să închideți aplicația?")
+                .positiveText("DA")
+                .negativeText("NU")
+                .onPositive((dialog, which) -> {
+                    activityToFinish.finishAndRemoveTask();
+                }).show();
     }
 
 
@@ -153,7 +209,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityView{
         runOnUiThread(() -> {
             mRecyclerView.setAdapter(adapter);
             mRecyclerView.setLayoutManager(layoutManager);
-            mRecyclerView.addItemDecoration(dividerItemDecoration);
+            if (!mRefreshLayout.isRefreshing()) {
+                mRecyclerView.addItemDecoration(dividerItemDecoration);
+            }
+            mRefreshLayout.setRefreshing(false);
         });
     }
 }

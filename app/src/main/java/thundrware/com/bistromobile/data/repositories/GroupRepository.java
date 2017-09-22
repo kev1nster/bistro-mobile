@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import io.realm.Realm;
+import thundrware.com.bistromobile.listeners.DataPersistingListener;
 import thundrware.com.bistromobile.models.Group;
 
 public class GroupRepository extends RepositoryBase implements Repository<Group> {
@@ -30,6 +31,12 @@ public class GroupRepository extends RepositoryBase implements Repository<Group>
                 realm.copyToRealm(items);
             }
         });
+    }
+
+    public void addRangeAsync(final Collection<Group> items, DataPersistingListener listener) {
+        realmInstance.executeTransactionAsync(realm -> realm.copyToRealm(items),
+                () -> listener.onSuccess(),
+                error -> listener.onError(error));
     }
 
     @Override

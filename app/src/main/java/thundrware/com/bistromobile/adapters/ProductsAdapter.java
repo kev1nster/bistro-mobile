@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.thoughtbot.expandablerecyclerview.ExpandableRecyclerViewAdapter;
@@ -16,6 +17,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.Realm;
 import thundrware.com.bistromobile.OrderItemEditor;
 import thundrware.com.bistromobile.R;
 import thundrware.com.bistromobile.models.OrderItem;
@@ -64,6 +66,9 @@ public class ProductsAdapter extends ExpandableRecyclerViewAdapter<ProductsAdapt
         @BindView(R.id.groupProductsAmountTextView)
         TextView groupProductsAmountTextView;
 
+        @BindView(R.id.groupDropdownImageView)
+        ImageView groupDropdownImageView;
+
         public ProductParentViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
@@ -72,6 +77,21 @@ public class ProductsAdapter extends ExpandableRecyclerViewAdapter<ProductsAdapt
         public void onBind(ProductGroup group) {
             setProductGroupName(group.getTitle());
             setGroupProductsAmountText(group.getItems().size());
+
+            // even if it is set in the XML, it doesn't show for some reason
+            groupDropdownImageView.setImageResource(R.drawable.ic_chevron_down_black);
+        }
+
+        @Override
+        public void expand() {
+            super.expand();
+            groupDropdownImageView.setImageResource(R.drawable.ic_chevron_up_black);
+        }
+
+        @Override
+        public void collapse() {
+            super.collapse();
+            groupDropdownImageView.setImageResource(R.drawable.ic_chevron_down_black);
         }
 
         private void setProductGroupName(String productGroupName) {
@@ -93,6 +113,9 @@ public class ProductsAdapter extends ExpandableRecyclerViewAdapter<ProductsAdapt
         @BindView(R.id.productPriceTextView)
         TextView productPriceTextView;
 
+        @BindView(R.id.productCountTextView)
+        TextView productCountTextView;
+
         Product productObject;
 
         public ProductViewHolder(View itemView) {
@@ -104,6 +127,22 @@ public class ProductsAdapter extends ExpandableRecyclerViewAdapter<ProductsAdapt
             setProductName(product.getName());
             setProductPrice(product.getPrice());
             productObject = product;
+
+            checkItemCount();
+        }
+
+        private void checkItemCount() {
+
+            Realm realm = Realm.getDefaultInstance();
+
+            long count = realm.where(OrderItem.class).equalTo("ProductId", productObject.getId())
+                    .equalTo("CategoryId", categoryId)
+                    .count();
+
+            if (count > 0) {
+                productCountTextView.setVisibility(View.VISIBLE);
+                setProductCount(Integer.parseInt(String.valueOf(count)));
+            }
         }
 
         @OnClick
@@ -118,6 +157,8 @@ public class ProductsAdapter extends ExpandableRecyclerViewAdapter<ProductsAdapt
             orderItem.setProductId(productObject.getId());
 
             OrderItemEditor.create(orderItem);
+
+            checkItemCount();
         }
 
         private void setProductName(String productName) {
@@ -126,6 +167,10 @@ public class ProductsAdapter extends ExpandableRecyclerViewAdapter<ProductsAdapt
 
         private void setProductPrice(Double productPrice) {
             productPriceTextView.setText("Preț: " + String.valueOf(productPrice) + " lei");
+        }
+
+        private void setProductCount(int count) {
+            productCountTextView.setText(String.valueOf(count));
         }
 
     }

@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="thundrware.com.bistromobile">
+
+    <uses-sdk
+        android:maxSdkVersion="26"
+        android:minSdkVersion="21"/>
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
         android:name=".MyApplication"
@@ -13,7 +21,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:node="replace">
         <activity
             android:name=".ui.MainActivity"
             android:screenOrientation="portrait">
@@ -24,8 +33,8 @@
         </activity>
         <activity
             android:name=".ui.SplashScreenActivity"
-            android:theme="@style/SplashTheme"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -40,10 +49,18 @@
             android:name=".ui.DataLoadingActivity"
             android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".ui.OrderManagementActivity"
+        <activity
+            android:name=".ui.OrderManagementActivity"
             android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".ui.TablePickingActivity"
+        <activity
+            android:name=".ui.TablePickingActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity android:name=".ui.SettingsActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity android:name=".ui.KeyActivationActivity"
             android:screenOrientation="portrait">
         </activity>
     </application>

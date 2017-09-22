@@ -53,6 +53,8 @@ dependencies {
     compile 'com.getkeepsafe.taptargetview:taptargetview:1.9.1'
     compile 'com.google.code.gson:gson:2.8.1'
     compile 'com.facebook.rebound:rebound:0.3.8'
+    compile 'com.android.support:support-v4:26.+'
+    compile 'com.github.thorbenprimke:realm-recyclerview:0.9.25'
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.7.0'
 }

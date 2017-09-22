@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.List;
@@ -66,12 +67,17 @@ public class ActiveTablesAdapter extends RecyclerView.Adapter<ActiveTablesAdapte
         @BindView(R.id.activeTableNameTextView)
         TextView activeTableNameTextView;
 
+        @BindView(R.id.activeTableProductLoadingProgressBar)
+        ProgressBar activeTableItemsLoadingProgressBar;
+
         Table table;
+        View view;
 
 
         public ActiveTableViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            view = itemView;
         }
 
         public void onBind(ActiveTable table) {
@@ -90,6 +96,8 @@ public class ActiveTablesAdapter extends RecyclerView.Adapter<ActiveTablesAdapte
 
             ServerConnectionDetailsManager serverConnectionDetailsManager = new ServerConnectionDetailsManager();
             DataService service = DataServiceProvider.create(serverConnectionDetailsManager.getConnectionDetails().toString());
+
+            turnLoadingModeOn();
 
             service.getItemsFor(table.getAreaId(), table.getTableNumber(), new WaiterManager().getCurrentWaiter().getId()).enqueue(new Callback<ResponseBody>() {
                         @Override
@@ -122,13 +130,24 @@ public class ActiveTablesAdapter extends RecyclerView.Adapter<ActiveTablesAdapte
         }
 
         private void setTableNameText(Integer tableNumber) {
-            activeTableNameTextView.setText("Masa nr. " + tableNumber);
+            activeTableNameTextView.setText("Masa nr. " + (tableNumber + 1));
         }
 
         private void setAreaNameText(Area area) {
             String areaName = area.getName();
             areaName = areaName.substring(0, 1).toUpperCase() + areaName.substring(1).toLowerCase();
             activeTableAreaNameTextView.setText(areaName);
+        }
+
+        private void turnLoadingModeOn() {
+
+            // hide indicators
+            activeTableNameTextView.setVisibility(View.GONE);
+            activeTableAreaNameTextView.setVisibility(View.GONE);
+
+            // show loading message
+            activeTableItemsLoadingProgressBar.setVisibility(View.VISIBLE);
+
         }
     }
 }
