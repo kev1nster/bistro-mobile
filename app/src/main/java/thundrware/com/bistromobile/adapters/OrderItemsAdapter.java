@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Log;
@@ -25,6 +26,8 @@ import com.facebook.rebound.SpringListener;
 import com.facebook.rebound.SpringSystem;
 import com.github.florent37.viewanimator.ViewAnimator;
 
+import org.w3c.dom.Text;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.OrderedRealmCollection;
@@ -33,6 +36,7 @@ import io.realm.RealmRecyclerViewAdapter;
 import ru.whalemare.sheetmenu.SheetMenu;
 import thundrware.com.bistromobile.AlertMessage;
 import thundrware.com.bistromobile.OrderItemEditor;
+import thundrware.com.bistromobile.QuantityChangeErrorListener;
 import thundrware.com.bistromobile.R;
 import thundrware.com.bistromobile.models.OrderItem;
 import thundrware.com.bistromobile.utils.StringUtils;
@@ -40,10 +44,12 @@ import thundrware.com.bistromobile.utils.StringUtils;
 public class OrderItemsAdapter extends RealmRecyclerViewAdapter<OrderItem, OrderItemsAdapter.OrderItemViewHolder> {
 
     private Context mContext;
+    private QuantityChangeErrorListener quantityChangeErrorListener;
 
     public OrderItemsAdapter(Context context, @Nullable OrderedRealmCollection<OrderItem> data, boolean autoUpdate) {
         super(data, autoUpdate);
         mContext = context;
+        quantityChangeErrorListener = (QuantityChangeErrorListener) context;
     }
 
     @Override
@@ -64,20 +70,35 @@ public class OrderItemsAdapter extends RealmRecyclerViewAdapter<OrderItem, Order
 
     public class OrderItemViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.orderItemAmountTextView)
-        TextView productAmountTextView;
-
         @BindView(R.id.orderItemProductNameTextView)
         TextView productNameTextView;
 
-        @BindView(R.id.orderItemSubstractImageView)
-        ImageView substractImageView;
-
-        @BindView(R.id.orderItemIncrementImageView)
-        ImageView incrementImageView;
-
         @BindView(R.id.orderItemDishNumberTextView)
         TextView dishNumberTextView;
+
+        @BindView(R.id.incrementImageView)
+        ImageView incrementImageView;
+
+        @BindView(R.id.decrementImageView)
+        ImageView decrementImageView;
+
+        @BindView(R.id.itemQuantityText)
+        TextView itemQuantityText;
+
+        @BindView(R.id.messageTextView)
+        TextView messageTextView;
+
+        @BindView(R.id.dishNumberLabel)
+        TextView dishNumberLabel;
+
+        @BindView(R.id.bottomLayout)
+        ConstraintLayout bottomLayout;
+
+        @BindView(R.id.topLayout)
+        ConstraintLayout topLayout;
+
+        @BindView(R.id.clientNumberTextView)
+        TextView clientNumberTextView;
 
         public OrderItemViewHolder(View itemView) {
             super(itemView);
@@ -87,14 +108,20 @@ public class OrderItemsAdapter extends RealmRecyclerViewAdapter<OrderItem, Order
         public void onBind(OrderItem orderItem) {
 
             // Setting the item amount
-            productAmountTextView.setText(String.valueOf(orderItem.getQuantity()));
+            Double quantity = orderItem.getQuantity();
+            itemQuantityText.setText(String.format("%.2f", quantity));
+
+
 
             // Setting the product name
-            productNameTextView.setText(ellipsize(orderItem.getProduct().getName(), 30));
+            productNameTextView.setText(orderItem.getProduct().getName());
 
             if (orderItem.isNew()) {
                 // Setting dish switcher text
                 setDishNumberText(orderItem.getDishNumber());
+
+                setClientNumberText(orderItem.getClientNumber());
+                clientNumberTextView.setOnClickListener(createOnClientNumberTextViewClickListener(orderItem));
 
                 // Setting dish switcher click listener
                 dishNumberTextView.setOnClickListener(createOnDishSwitcherClickListener(orderItem));
@@ -103,19 +130,35 @@ public class OrderItemsAdapter extends RealmRecyclerViewAdapter<OrderItem, Order
                 incrementImageView.setOnClickListener(createIncrementImageViewClickListener(orderItem));
 
                 // Setting substract imageView click listener & longClick listener
-                substractImageView.setOnClickListener(createSusbtractImageViewClickListener(orderItem));
-                substractImageView.setOnLongClickListener(createSubstractImageViewLongClickListener(orderItem));
+                decrementImageView.setOnClickListener(createSusbtractImageViewClickListener(orderItem));
+                decrementImageView.setOnLongClickListener(createSubstractImageViewLongClickListener(orderItem));
+
+                messageTextView.setOnClickListener(createOnMessageTextViewClickListener(orderItem));
+                itemQuantityText.setOnClickListener(createOnItemQuantityTextClickListener(orderItem));
 
             } else {
                 /*
                     The order is loaded, therefore it means that the waiter isn't allowed to change the dish number, substract, increment or edit the quantity of an item.
                     */
-                setViewsVisibility(View.GONE, dishNumberTextView, incrementImageView, substractImageView);
+                setViewsVisibility(View.GONE, clientNumberTextView, dishNumberTextView, incrementImageView, decrementImageView, messageTextView, dishNumberTextView, dishNumberLabel);
+                setBottomLayoutConstraintToParentTop();
 
             }
         }
 
+        private void setClientNumberText(int clientNumber) {
+            clientNumberTextView.setText(String.format("CLIENT %d", clientNumber));
+        }
 
+        private void setBottomLayoutConstraintToParentTop() {
+
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)bottomLayout.getLayoutParams();
+            params.topToTop = topLayout.getId();
+            itemQuantityText.setPadding(2, 2, 2, 2);
+
+            final float scale = mContext.getResources().getDisplayMetrics().density;
+            params.height = (int) (35 * scale);
+        }
 
         private void setDishNumberText(int dishNumber) {
             String dishText = "";
@@ -134,50 +177,6 @@ public class OrderItemsAdapter extends RealmRecyclerViewAdapter<OrderItem, Order
 
             dishNumberTextView.setText(dishText);
         }
-
-
-
-        /*
-            Start of ellipsize-related stuff
-         */
-
-        private final String NON_THIN = "[^iIl1\\.,']";
-
-        private int textWidth(String str) {
-            return (int) (str.length() - str.replaceAll(NON_THIN, "").length() / 2);
-        }
-
-        public String ellipsize(String text, int max) {
-
-            if (textWidth(text) <= max)
-                return text;
-
-            // Start by chopping off at the word before max
-            // This is an over-approximation due to thin-characters...
-            int end = text.lastIndexOf(' ', max - 3);
-
-            // Just one long word. Chop it off.
-            if (end == -1)
-                return text.substring(0, max-3) + "...";
-
-            // Step forward as long as textWidth allows.
-            int newEnd = end;
-            do {
-                end = newEnd;
-                newEnd = text.indexOf(' ', end + 1);
-
-                // No more spaces.
-                if (newEnd == -1)
-                    newEnd = text.length();
-
-            } while (textWidth(text.substring(0, newEnd) + "...") < max);
-
-            return text.substring(0, end) + "...";
-        }
-
-        /*
-            End of ellipsize-related stuff
-         */
 
         private View.OnClickListener createOnDishSwitcherClickListener(final OrderItem orderItem) {
             return view -> {
@@ -216,6 +215,34 @@ public class OrderItemsAdapter extends RealmRecyclerViewAdapter<OrderItem, Order
             };
         }
 
+        private View.OnClickListener createOnItemQuantityTextClickListener(final OrderItem orderItem) {
+            return view -> {
+              new MaterialDialog.Builder(mContext)
+                      .title("Schimbare cantitate")
+                      .content("Introdu o nouă cantitate pentru produsul selectat")
+                      .inputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED)
+                      .positiveText("GATA")
+                      .input("Introdu cantitatea dorită", String.valueOf(orderItem.getQuantity()), (dialog, input) -> {
+                          if (!StringUtils.isNullOrEmpty(input.toString())) {
+
+                              Double quantityInput = Double.parseDouble(input.toString());
+                              if (quantityInput > 0) {
+                                  // then it's ok
+                                  OrderItemEditor.edit(orderItem)
+                                          .newQuantity(quantityInput);
+                              } else {
+                                  // u wot m8
+                                  quantityChangeErrorListener.onQuantityError("Cantitatea nu poate fi negativă!");
+                              }
+
+                          } else {
+                              quantityChangeErrorListener.onQuantityError("Trebuie să introduceți o valoare pentru a schimba cantitatea!");
+                          }
+                      })
+                      .show();
+            };
+        }
+
         private View.OnClickListener createSusbtractImageViewClickListener(final OrderItem orderItem) {
             return view -> {
 
@@ -245,58 +272,48 @@ public class OrderItemsAdapter extends RealmRecyclerViewAdapter<OrderItem, Order
             };
         }
 
-        private View.OnLongClickListener createOnItemViewLongClickListener(final OrderItem orderItem) {
-            return itemView -> {
-                SheetMenu.with(mContext)
-                        .setTitle("Opțiune")
-                        .setMenu(R.menu.order_item_long_click_menu)
-                        .setClick(menuItem -> {
-                            String condensedTitle = menuItem.getTitleCondensed().toString();
-                            switch (condensedTitle) {
-                                case "setMessage":
-                                    // messageEditTextPopup
-                                    new MaterialDialog.Builder(mContext)
-                                            .title("Adăugare mențiune")
-                                            .content("Introdu mesajul pentru bucătărie")
-                                            .inputType(InputType.TYPE_CLASS_TEXT)
-                                            .positiveText("ADAUGĂ")
-                                            .input(null, orderItem.getMessage(), (dialog, input) -> {
-                                                if (!StringUtils.isNullOrEmpty(input.toString())) {
-                                                    OrderItemEditor.edit(orderItem)
-                                                            .setMessage(input.toString());
-                                                } else {
-                                                    dialog.setContent("Mesajul pentru bucătărie nu poate fi gol");
-                                                }
-                                            })
-                                            .show();
-                                    break;
-                                case "changeClient":
-                                    /* List<String> clientsBesideTheCurrentOne = new ArrayList<>();
-                                    Integer[] clientNumbers = new Integer[] { 1, 2, 3, 4};
+        private View.OnClickListener createOnMessageTextViewClickListener(final OrderItem orderItem) {
+            return view ->
+                    new MaterialDialog.Builder(mContext)
+                            .title("Adăugare mesaj")
+                            .content("Introdu mesajul pentru bucătărie")
+                            .inputType(InputType.TYPE_CLASS_TEXT)
+                            .positiveText("ADAUGĂ")
+                            .input(null, orderItem.getMessage(), (dialog, input) -> {
+                                if (!StringUtils.isNullOrEmpty(input.toString())) {
+                                    OrderItemEditor.edit(orderItem)
+                                            .setMessage(input.toString());
+                                } else {
+                                    dialog.setContent("Mesajul pentru bucătărie nu poate fi gol");
+                                }
+                            })
+                            .show();
 
-                                    for (Integer clientNumber : clientNumbers) {
-                                        if (clientNumber != orderItem.getClient()) {
-                                            clientsBesideTheCurrentOne.add("Client " + clientNumber);
-                                        }
-                                    }
+        }
 
+        private View.OnClickListener createOnClientNumberTextViewClickListener(final OrderItem orderItem) {
+            return view -> {
+                final int currentClientNumber = orderItem.getClientNumber();
+                int nextClientNumber = 0;
 
-                                    new MaterialDialog.Builder(mContext)
-                                            .title("Schimbă clientul")
-                                            .items(clientsBesideTheCurrentOne)
-                                            .itemsCallbackSingleChoice(-1, (dialog, itemView1, which, text) -> {
-                                                int clientNumber = Integer.parseInt(text.toString().replace("Client ", ""));
-                                                mOrderManager.setClientNumber(orderItem, clientNumber);
-                                                return false;
-                                            })
-                                            .show();
+                switch(currentClientNumber) {
+                    case 1:
+                        nextClientNumber = 2;
+                        break;
+                    case 2:
+                        nextClientNumber = 3;
+                        break;
+                    case 3:
+                        nextClientNumber = 4;
+                        break;
+                    case 4:
+                        nextClientNumber = 1;
+                        break;
+                }
 
-                                    break; */
-                            }
-                            return true;
-                        })
-                        .show();
-                return true;
+                OrderItemEditor.edit(orderItem).changeClient(nextClientNumber);
+                setClientNumberText(nextClientNumber);
+
             };
         }
 

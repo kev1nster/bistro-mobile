@@ -5,10 +5,12 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -40,6 +42,8 @@ import thundrware.com.bistromobile.AlertMessage;
 import thundrware.com.bistromobile.Message;
 import thundrware.com.bistromobile.MyApplication;
 import thundrware.com.bistromobile.OrderDetailsEditor;
+import thundrware.com.bistromobile.OrderItemAddedListener;
+import thundrware.com.bistromobile.QuantityChangeErrorListener;
 import thundrware.com.bistromobile.R;
 import thundrware.com.bistromobile.WaiterManager;
 import thundrware.com.bistromobile.adapters.OrderActivityPagerAdapter;
@@ -55,7 +59,13 @@ import thundrware.com.bistromobile.networking.DataServiceProvider;
 import thundrware.com.bistromobile.ui.presenters.OrderManagementActivityPresenter;
 import thundrware.com.bistromobile.ui.views.OrderManagementActivityView;
 
-public class OrderManagementActivity extends FragmentActivity implements OrderManagementActivityView {
+public class OrderManagementActivity
+        extends
+        FragmentActivity
+        implements
+        OrderManagementActivityView,
+        OrderItemAddedListener,
+        QuantityChangeErrorListener {
 
     @BindView(R.id.bottomSheetLayoutIncluded)
     ConstraintLayout mBottomLayout;
@@ -135,17 +145,10 @@ public class OrderManagementActivity extends FragmentActivity implements OrderMa
         }
 
         mRealm.addChangeListener(realm -> {
-           runOnUiThread(() -> {
-
-               double sum = 0;
-               for (OrderItem item : realm.where(OrderItem.class).findAll()) {
-                   sum += item.getProduct().getPrice() * item.getQuantity();
-               }
-               mTotalOrderAmountTextView.setText(String.valueOf(sum));
-           });
+           runOnUiThread(() ->  updateTotalOrderAmountTextView());
         });
 
-        updateTotalOrderAmountTextView();
+       updateTotalOrderAmountTextView();
 
        bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
@@ -179,9 +182,7 @@ public class OrderManagementActivity extends FragmentActivity implements OrderMa
         for (OrderItem item : mRealm.where(OrderItem.class).findAll()) {
             sum += item.getProduct().getPrice() * item.getQuantity();
         }
-
-        DecimalFormat formatter = new DecimalFormat("#.##");
-        mTotalOrderAmountTextView.setText(formatter.format(sum));
+        mTotalOrderAmountTextView.setText(String.format("%.2f", sum));
     }
 
     @OnClick(R.id.sendOrderTextView)
@@ -192,11 +193,12 @@ public class OrderManagementActivity extends FragmentActivity implements OrderMa
 
 
         OrderDataTransferObject orderObject = new OrderDataTransferObject();
-        if (getNewOrderItems().size() != 0) {
-            orderObject.setNewItems(getNewOrderItems());
-        } else {
+        if (getNewOrderItems().size() == 0) {
             AlertMessage.showMessage(this, "Eroare", "Nu ați adăugat articole pentru a efectua altă comandă!");
+            return;
         }
+
+        orderObject.setNewItems(getNewOrderItems());
         orderObject.setTable(OrderDetailsEditor.getTable());
         orderObject.setWaiterId(new WaiterManager().getCurrentWaiter().getId());
 
@@ -251,9 +253,12 @@ public class OrderManagementActivity extends FragmentActivity implements OrderMa
         OrderedRealmCollection<OrderItem> orderItemsRealmCollection = mRealm.where(OrderItem.class).findAll();
         OrderItemsAdapter adapter = new OrderItemsAdapter(this, orderItemsRealmCollection, true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mOrderItemsRecyclerView.getContext(), linearLayoutManager.getOrientation());
 
         mOrderItemsRecyclerView.setAdapter(adapter);
         mOrderItemsRecyclerView.setLayoutManager(linearLayoutManager);
+        mOrderItemsRecyclerView.addItemDecoration(dividerItemDecoration);
+
     }
 
     private void hideKeyboard() {
@@ -270,7 +275,7 @@ public class OrderManagementActivity extends FragmentActivity implements OrderMa
 
     @Override
     public void changeTableDetails(Table table) {
-        String tableDetailsText = "(" + table.getDisplayTableNumber() + ") " + mAreasRepository.get(table.getAreaId()).getName().toUpperCase();
+        String tableDetailsText = "(" + table.getTableNumber() + ") " + mAreasRepository.get(table.getAreaId()).getName().toUpperCase();
         mTableDetailsTextView.setText(tableDetailsText);
     }
 
@@ -294,5 +299,20 @@ public class OrderManagementActivity extends FragmentActivity implements OrderMa
         } else {
             finish();
         }
+    }
+
+    private void showSnackbarMessage(String message) {
+        View parentLayout = findViewById(android.R.id.content);
+        Snackbar.make(parentLayout, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onItemAdded(String itemName) {
+        showSnackbarMessage(itemName + " ADĂUGAT");
+    }
+
+    @Override
+    public void onQuantityError(String error) {
+        Message.showError(this, error);
     }
 }

@@ -18,6 +18,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
+import thundrware.com.bistromobile.OrderItemAddedListener;
 import thundrware.com.bistromobile.OrderItemEditor;
 import thundrware.com.bistromobile.R;
 import thundrware.com.bistromobile.models.OrderItem;
@@ -27,11 +28,13 @@ public class ProductsAdapter extends ExpandableRecyclerViewAdapter<ProductsAdapt
 
     private Context mContext;
     private int categoryId;
+    private OrderItemAddedListener itemAddedListener;
 
-    public ProductsAdapter(Context context, int categoryId, List<? extends ExpandableGroup> groups) {
+    public ProductsAdapter(Context context, int categoryId, List<? extends ExpandableGroup> groups, OrderItemAddedListener listener) {
         super(groups);
         mContext = context;
         this.categoryId = categoryId;
+        itemAddedListener = listener;
     }
 
     @Override
@@ -158,7 +161,7 @@ public class ProductsAdapter extends ExpandableRecyclerViewAdapter<ProductsAdapt
 
             OrderItemEditor.create(orderItem);
 
-            checkItemCount();
+            itemAddedListener.onItemAdded(orderItem.getProduct().getName());
         }
 
         private void setProductName(String productName) {

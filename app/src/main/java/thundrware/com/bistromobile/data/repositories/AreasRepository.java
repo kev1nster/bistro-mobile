@@ -69,7 +69,7 @@ public class AreasRepository extends RepositoryBase implements Repository<Area> 
 
     @Override
     public List<Area> get() {
-        return realmInstance.where(Area.class).findAll();
+        return realmInstance.where(Area.class).distinct("id");
     }
 
     @Override

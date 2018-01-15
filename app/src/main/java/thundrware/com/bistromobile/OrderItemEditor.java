@@ -27,6 +27,10 @@ public class OrderItemEditor {
         realm.executeTransaction(realm1 -> orderItem.increaseQuantity());
     }
 
+    public void changeClient(int clientNumber) {
+        realm.executeTransaction(realm1 -> orderItem.setClientNumber(clientNumber));
+    }
+
     public void substractQuantity()  {
         if ((orderItem.getQuantity() - 1) > 0) {
             realm.executeTransaction(realm1 -> orderItem.decreaseQuantity());

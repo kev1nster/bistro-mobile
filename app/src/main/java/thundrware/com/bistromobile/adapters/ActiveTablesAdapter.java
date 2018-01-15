@@ -130,7 +130,7 @@ public class ActiveTablesAdapter extends RecyclerView.Adapter<ActiveTablesAdapte
         }
 
         private void setTableNameText(Integer tableNumber) {
-            activeTableNameTextView.setText("Masa nr. " + (tableNumber + 1));
+            activeTableNameTextView.setText("Masa nr. " + tableNumber);
         }
 
         private void setAreaNameText(Area area) {

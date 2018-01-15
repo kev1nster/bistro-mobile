@@ -2,88 +2,191 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
                                              xmlns:app="http://schemas.android.com/apk/res-auto"
                                              xmlns:tools="http://schemas.android.com/tools"
+                                             android:id="@+id/orderItemViewLayout"
                                              android:layout_width="match_parent"
-                                             android:layout_height="50dp"
-                                             android:orientation="vertical"
-    >
+                                             android:layout_height="wrap_content"
+                                             android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/orderItemProductNameTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/topLayout"
+        android:layout_width="0dp"
+        android:layout_height="25dp"
         android:layout_marginTop="8dp"
-        android:clickable="false"
-        android:longClickable="false"
-        android:fontFamily="sans-serif-condensed"
-        android:text="---"
-        android:textColor="@android:color/black"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5"
-        tools:text="CIORBA CIORBA CIORBA CIORBA "
-        android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="@+id/bottomLayout"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/orderItemAmountTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="0dp"
-        android:layout_marginLeft="8dp"
+        <TextView
+            android:id="@+id/productNameLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NUME"
+            android:textSize="6sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/orderItemProductNameTextView"
+            app:layout_constraintLeft_toLeftOf="@+id/orderItemProductNameTextView"
+            tools:layout_editor_absoluteX="-96dp"
+            tools:layout_editor_absoluteY="266dp"/>
+
+        <TextView
+            android:id="@+id/orderItemProductNameTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="0dp"
+            android:layout_weight="1"
+            android:clickable="false"
+            android:fontFamily="sans-serif"
+            android:longClickable="false"
+            android:text="---"
+            android:textColor="@color/colorAccent"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.03"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0"
+            tools:text="CIORBA CIORBA CIORBA CIORBA "/>
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/bottomLayout"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
         android:layout_marginTop="0dp"
-        android:text="5"
-        android:clickable="false"
-        android:longClickable="false"
-        android:textColor="@color/secondaryColor"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/orderItemProductNameTextView"
-        app:layout_constraintVertical_bias="0.5"/>
-
-    <TextView
-        android:id="@+id/orderItemDishNumberTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="0dp"
-        android:layout_marginRight="0dp"
-        android:layout_marginTop="0dp"
-        android:padding="10dp"
-        android:text="---"
-        android:textColor="@android:color/black"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/orderItemIncrementImageView"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.538"
-        tools:text="FELUL 1"/>
-
-    <ImageView
-        android:id="@+id/orderItemSubstractImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginRight="0dp"
-        android:layout_marginTop="8dp"
-        android:padding="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:src="@drawable/ic_minus_circle"/>
+        app:layout_constraintTop_toBottomOf="@+id/topLayout"
+        >
 
-    <ImageView
-        android:id="@+id/orderItemIncrementImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginRight="0dp"
-        android:layout_marginTop="8dp"
-        android:padding="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/orderItemSubstractImageView"
-        app:layout_constraintTop_toTopOf="parent"
-        app:src="@drawable/ic_plus_circle"/>
+        <TextView
+            android:id="@+id/messageTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:padding="10dp"
+            android:text="MESAJ"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/bottomLayout"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.333"
+            app:layout_constraintRight_toLeftOf="@+id/quantityLayout"
+            android:layout_marginRight="0dp"
+            />
+
+        <TextView
+            android:id="@+id/clientNumberTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="8dp"
+            android:padding="10dp"
+            android:text="CLIENT 1"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/bottomLayout"
+            app:layout_constraintLeft_toRightOf="@+id/orderItemDishNumberTextView"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5"
+            app:layout_constraintRight_toLeftOf="@+id/messageTextView"
+            android:layout_marginRight="0dp"
+            app:layout_constraintHorizontal_bias="0.6"/>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/quantityLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            android:layout_marginTop="0dp">
+
+            <TextView
+                android:id="@+id/itemQuantityText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="0dp"
+                android:layout_marginRight="0dp"
+                android:layout_marginTop="0dp"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:text="22.0"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/incrementImageView"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.5"/>
+
+            <ImageView
+                android:id="@+id/decrementImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="0dp"
+                android:layout_marginTop="8dp"
+                android:padding="10dp"
+                android:src="@drawable/ic_minus_circle"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/itemQuantityText"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <ImageView
+                android:id="@+id/incrementImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="0dp"
+                android:layout_marginTop="8dp"
+                android:padding="10dp"
+                android:src="@drawable/ic_plus_circle"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+        </android.support.constraint.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/dishNumberLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="0dp"
+            android:text="FEL DE MÂNCARE"
+            android:textSize="6sp"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="@+id/orderItemDishNumberTextView"
+            app:layout_constraintTop_toTopOf="@+id/orderItemDishNumberTextView"/>
+
+        <TextView
+            android:id="@+id/orderItemDishNumberTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:padding="10dp"
+            android:text="---"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5"
+            tools:text="FELUL 1"/>
+
+    </android.support.constraint.ConstraintLayout>
+
 </android.support.constraint.ConstraintLayout>

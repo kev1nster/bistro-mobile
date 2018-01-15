@@ -12,6 +12,7 @@ public class OrderItem extends RealmObject {
     private double Quantity = 0;
     private String Message;
     private boolean IsNew;
+    private int ClientNumber = 1;
 
     public int getId() {
         return Id;
@@ -83,5 +84,13 @@ public class OrderItem extends RealmObject {
 
     public void setProductId(int productId) {
         ProductId = productId;
+    }
+
+    public int getClientNumber() {
+        return ClientNumber;
+    }
+
+    public void setClientNumber(int clientNumber) {
+        ClientNumber = clientNumber;
     }
 }

@@ -43,4 +43,5 @@
 
     <include layout="@layout/order_activity_bottom_sheet_layout"
         android:id="@+id/bottomSheetLayoutIncluded"/>
+
 </android.support.design.widget.CoordinatorLayout>

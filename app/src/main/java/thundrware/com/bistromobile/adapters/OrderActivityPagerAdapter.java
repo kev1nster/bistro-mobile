@@ -1,5 +1,6 @@
 package thundrware.com.bistromobile.adapters;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -19,12 +20,14 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import thundrware.com.bistromobile.OrderItemAddedListener;
 import thundrware.com.bistromobile.R;
 import thundrware.com.bistromobile.data.repositories.CategoriesRepository;
 import thundrware.com.bistromobile.data.repositories.GroupRepository;
 import thundrware.com.bistromobile.data.repositories.ProductsRepository;
 import thundrware.com.bistromobile.models.Category;
 import thundrware.com.bistromobile.models.Group;
+import thundrware.com.bistromobile.ui.OrderManagementActivity;
 
 
 public class OrderActivityPagerAdapter extends FragmentStatePagerAdapter {
@@ -95,7 +98,8 @@ public class OrderActivityPagerAdapter extends FragmentStatePagerAdapter {
             }
 
 
-            ProductsAdapter adapter = new ProductsAdapter(getActivity(), categoryId, productGroupList);
+
+            ProductsAdapter adapter = new ProductsAdapter(getActivity(), categoryId, productGroupList, (OrderManagementActivity) getActivity());
             RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
 
             recyclerView.setLayoutManager(layoutManager);

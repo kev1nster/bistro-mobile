@@ -54,7 +54,7 @@ public class CategoriesRepository extends RepositoryBase implements Repository<C
 
     @Override
     public List<Category> get() {
-        return realmInstance.where(Category.class).findAll();
+        return realmInstance.where(Category.class).distinct("id");
     }
 
     @Override
